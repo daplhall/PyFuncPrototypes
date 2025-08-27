@@ -1,0 +1,32 @@
+[build-system]
+requires = [
+  "hatchling",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = 'PyFuncPrototypes'
+version = '1.0.0'
+authors = [
+    {name = 'Daniel Hall', email = 'danielploug@hotmail.com'},
+]
+description = "A library for defining specific function interfaces"
+readme = 'README.md'
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+]
+
+[project.urls]
+Homepage = ""
+Issues = ""
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "pyfuncprototypes/*",
+  "tests/*"
+]
