@@ -1,6 +1,6 @@
 import pytest
 
-from dicechanics.ParamChecker import ParamChecker, UnsupportedParameters
+from pyprototypes.ParamChecker import ParamChecker, UnsupportedParameters
 
 
 def SomePrototype(a, b, c):

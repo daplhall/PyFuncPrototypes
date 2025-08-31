@@ -2,3 +2,4 @@
 .benchmarks
 .vscode
 __pycache__
+main.py
