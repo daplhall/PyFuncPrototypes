@@ -24,7 +24,7 @@ my_proto_type.check(inpt_function)
 # From here we can assume that the function is correct
 ```
 Here the following error is thrown
-```cmd
+```
 Error in the signature of 'inpt_function' in <File of inpt function>   
 * Parameter 'incm' is not supported, did you mean:
         - income
