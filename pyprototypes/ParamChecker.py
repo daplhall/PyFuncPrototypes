@@ -67,16 +67,19 @@ class ParamChecker(OptionsMatcher, Signature):
 		self.typing = False
 
 	def check(self, function: callable) -> set[str]:
+		return self.check_param(self.options, function)
+
+	def check_param(self, options, function: callable):
 		params = ParamChecker.signature(function)
-		odd_param = set(params) - set(self.options)
-		hits = set(params) & set(self.options)
-		wrong_types = self.check_types(hits, params)
+		odd_param = set(params) - set(options)
+		hits = set(params) & set(options)
+		wrong_types = self.match_types(hits, params)
 		matches = self.match_parameter(odd_param)
 		if matches or wrong_types:
 			raise UnsupportedParameters(matches, wrong_types, function)
 		return hits
 
-	def check_types(self, hits, params):
+	def match_types(self, hits, params):
 		"""
 		Checks types and returns the params with types that doesn't match
 		"""
