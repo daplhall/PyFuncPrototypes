@@ -19,7 +19,7 @@ class ParamChecker {
 
 class FixtureHandler{
 	{method} <<constructor>> FixtureHandler
-	{method} new_fixture(param, default)
+	{method} fixture(param, default)
 	{method} apply
 }
 
