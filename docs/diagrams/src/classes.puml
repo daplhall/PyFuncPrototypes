@@ -1,0 +1,39 @@
+@startuml FunctionPrototype
+class OptionMatcher{
+	options
+	<<constructor>> OptionMatcher()
+	{method} match
+	{static}{method} lev
+}
+class Signature {
+	{static}{method} signature
+}
+
+class ParamChecker {
+	typing : bool
+	returning: bool
+	{method} <<constructor>>  ParamChecker
+	{method} check
+	{method} set_positionals
+}
+
+class FixtureHandler{
+	{method} <<constructor>> FixtureHandler
+	{method} new_fixture(param, default)
+	{method} apply
+}
+
+class FunctionPrototype {
+	<<constructor>> FunctionPrototype(inpt: Function)
+	{method} <<class method>> typing
+	{method} <<class method>> returning
+	{method} <<class method>> defaults
+	{method} <<class method>> Positionals
+	{method} enforce
+}
+
+Signature <-- ParamChecker
+OptionMatcher <-- ParamChecker
+ParamChecker <-- FixtureHandler
+FixtureHandler<-- FunctionPrototype
+@enduml
