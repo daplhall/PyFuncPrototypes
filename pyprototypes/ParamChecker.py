@@ -127,3 +127,19 @@ class UnsupportedParameters(Exception):
 			f"\nError in the signature of '{function.__name__}' "
 			f"in {inspect.getsourcefile(function)}\n" + msg
 		)
+
+
+class FixtureHandler(ParamChecker):
+	def __init__(prototype):
+		super().__init__(prototype)
+
+	def fixture(param, fixture):
+		"""
+		should thus be a wrapper?
+		we could do that it returns a function that register based on
+		the param in this one
+		"""
+		return fixture
+
+	def apply(matches):
+		pass
