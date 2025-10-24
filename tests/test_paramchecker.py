@@ -3,45 +3,29 @@ import pytest
 from pyprototypes.ParamChecker import ParamChecker, UnsupportedParameters
 
 
-def SomePrototype(a, b, c):
-	pass
-
-
-def UserInpt(a, b, p):
-	pass
-
-
-def test_basic_prototype():
-	matcher = ParamChecker(SomePrototype)
+def test_basic_prototype(abc_prototype):
+	matcher = ParamChecker(abc_prototype)
 	try:
-		assert matcher.check(SomePrototype) == {"a", "b", "c"}
+		assert matcher.check(abc_prototype) == {"a", "b", "c"}
 	except UnsupportedParameters:
 		pytest.fail("Checker failed on perfect match")
 
 
-def test_basic_prototype_raise():
-	matcher = ParamChecker(SomePrototype)
+def test_basic_prototype_raise(abc_prototype, abp_inpt):
+	matcher = ParamChecker(abc_prototype)
 	with pytest.raises(UnsupportedParameters):
-		matcher.check(UserInpt)
+		matcher.check(abp_inpt)
 
 
-def SomeTypedPrototype(a: int, b: float, c: str):
-	pass
-
-
-def UserTypedInpt(a: float, b: str, c: set):
-	pass
-
-
-def test_typed_prototype():
-	matcher = ParamChecker.with_typing(SomeTypedPrototype)
+def test_typed_prototype(typed_prototype):
+	matcher = ParamChecker.with_typing(typed_prototype)
 	try:
-		assert matcher.check(SomeTypedPrototype) == {"a", "b", "c"}
+		assert matcher.check(typed_prototype) == {"a", "b", "c"}
 	except UnsupportedParameters:
 		pytest.fail("Typed Checker failed on perfect match")
 
 
-def test_typed_prototype_error():
-	matcher = ParamChecker.with_typing(SomeTypedPrototype)
+def test_typed_prototype_error(typed_prototype, typed_inpt):
+	matcher = ParamChecker.with_typing(typed_prototype)
 	with pytest.raises(UnsupportedParameters):
-		matcher.check(UserTypedInpt)
+		matcher.check(typed_inpt)
