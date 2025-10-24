@@ -1,0 +1,43 @@
+@startuml
+top to bottom direction
+state do_fixtures <<choice>>
+state finished_func : output finished function
+state fixtures_error : record the error
+state matcher {
+	state entry <<entrypoint>>
+	state error <<exitpoint>>
+	state match <<exitpoint>>
+	state do_types <<choice>>
+	state type_error : record the error
+	state name_error : record the error
+	entry --> match_name : With\nnames
+	match_name --> name_error : Error 
+	match_name --> do_types : Matching
+	name_error -> do_types
+
+	do_types --> match_types : With\ntypes
+	do_types -> matcher_error_handle : No\ntypes
+	match_types --> matcher_error_handle : Matching
+	match_types --> type_error : Error
+	type_error ->  matcher_error_handle
+
+	matcher_error_handle --> match : No errors
+	matcher_error_handle --> error : error occoured
+}
+
+[*] --> entry
+match --> do_fixtures
+error --> [*]
+exit --> [*]
+
+
+do_fixtures --> match_fixtures : With\nfixtures
+match_fixtures --> finished_func : matching
+match_fixtures --> fixtures_error : not matching
+do_fixtures --> [*] : No Fixtures
+fixtures_error -> [*]
+finished_func --> [*]
+
+
+
+@enduml

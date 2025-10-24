@@ -1,0 +1,86 @@
+import inspect
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass
+class FuncMetaData:
+	name: str
+	loc: str
+
+
+class Signature:
+	"""Collects signature"""
+
+	@staticmethod
+	def signature(template: callable):
+		return {
+			param.name: param.annotation
+			for param in inspect.signature(template).parameters.values()
+		}
+
+	@staticmethod
+	def metadata(template: callable) -> FuncMetaData:
+		return FuncMetaData(template.__name__, inspect.getsourcefile(template))
+
+
+class NameMatcher:
+	"""
+	needs to contain options
+	Idea:
+	https://stackoverflow.com/questions/5859561/getting-the-closest-string-match
+	"""
+
+	@staticmethod
+	def match_str(correct: dict[str, Any], arg: str) -> list[str]:
+		""" """
+		tmp = []
+		for option in correct:
+			tmp.append((NameMatcher.lev(option, arg), option))
+		tmp.sort()
+		return [i[1] for i in tmp if min(tmp)[0] == i[0]]
+
+	@staticmethod
+	def is_odd(correct: dict[str, Any], names: dict[str, Any]) -> bool:
+		if set(correct) - set(names):
+			return True
+		else:
+			return False
+
+	@staticmethod
+	def lev(a: str, b: str) -> int:
+		"""
+		levenshtein_distance
+		https://en.wikipedia.org/wiki/Levenshtein_distance
+		"""
+		if len(b) == 0:
+			return len(a)
+		elif len(a) == 0:
+			return len(b)
+		elif a[0] == b[0]:
+			return NameMatcher.lev(a[1:], b[1:])
+		else:
+			return 1 + min(
+				NameMatcher.lev(a[1:], b),
+				NameMatcher.lev(a, b[1:]),
+				NameMatcher.lev(a[1:], b[1:]),
+			)
+
+
+class TypeMatcher:
+	@staticmethod
+	def match(
+		overlap: set[str], signature: dict[Any, type], inpt: dict[Any, type]
+	) -> list[tuple[Any, type, type]]:
+		return [
+			(param, mytype, signature[param])
+			for param, mytype in filter(lambda x: x[0] in overlap, inpt.items())
+			if mytype != signature[param]
+		]
+
+	@staticmethod
+	def is_odd(name_hits: dict[Any, type], arg: dict[Any, type]):
+		if set(name_hits.values()) - set(arg.values()):
+			return True
+		else:
+			return False
