@@ -1,6 +1,9 @@
 @startuml
 top to bottom direction
+<<<<<<< HEAD
 hide empty description
+=======
+>>>>>>> eff8e5141ddba8bb70dc6a9cec1adf2c9054245e
 state do_fixtures <<choice>>
 state finished_func : output finished function
 state fixtures_error : record the error
