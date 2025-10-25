@@ -1,34 +1,5 @@
 from pyprototypes.BaseMatchers import NameMatcher, Signature
-from pyprototypes.NameTypeMachine import MatcherMachine
-
-
-class FuncMeta:
-	def __init__(self, function):
-		self._name = function.__name__
-		self._qualname = function.__qualname__
-		self._module = function.__module__
-		self._func = function
-		self._signature = Signature.signature(function)
-
-	@property
-	def name(self):
-		return self._name
-
-	@property
-	def qualname(self):
-		return self._qualname
-
-	@property
-	def module(self):
-		return self._module
-
-	@property
-	def func(self):
-		return self._func
-
-	@property
-	def Signature(self):
-		return self._signature
+from pyprototypes.FunctionMetaData import FuncMeta
 
 
 class Prototype:
@@ -44,5 +15,15 @@ class Prototype:
 		else:
 			raise Exception("Fixture doesn't match name")
 
-	def check(self, fnc: callable) -> bool:
-		return NotImplemented
+	def machine(self):
+		return {name: meta.func for name, meta in self.fixtures.items()}
+
+	def wrap(self, fnc: callable) -> bool:
+		def wrapper(**kwards):
+			applyed_fixtures = {
+				name: func() for name, func in self.machine().items()
+			}
+			kwards.update(applyed_fixtures)
+			return fnc(**kwards)
+
+		return wrapper

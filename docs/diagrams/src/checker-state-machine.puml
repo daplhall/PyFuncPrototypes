@@ -1,5 +1,6 @@
 @startuml
 top to bottom direction
+hide empty description
 state do_fixtures <<choice>>
 state finished_func : output finished function
 state fixtures_error : record the error

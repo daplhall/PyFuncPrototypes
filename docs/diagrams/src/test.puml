@@ -1,0 +1,10 @@
+@startuml
+state A 
+{
+    hello -> davs
+}
+
+
+state A 
+A -> q
+@enduml

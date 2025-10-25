@@ -1,0 +1,25 @@
+@startuml
+top to bottom direction
+hide empty description
+
+
+state FixtureMachine {
+    state entry <<entrypoint>>
+    state exit <<exitpoint>>
+    state c <<choice>>
+    state "not fixture" as not_fixture : Error state
+    state evalutate : consumes
+    entry --> parse_signature
+    parse_signature --> c : args\nleft 
+    c -> recursion : filled\nsignature
+    c -> evalutate : empty\nsignature
+    recursion --> evalutate
+    evalutate --> parse_signature
+    c --> not_fixture: not\nfixture
+    not_fixture -> exit
+    parse_signature -> exit :  no more args
+}
+
+[*] --> entry
+exit --> [*]
+@enduml

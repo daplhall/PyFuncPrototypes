@@ -1,4 +1,5 @@
 @startuml FunctionPrototype
+hide empty description
 class OptionMatcher{
 	options
 	<<constructor>> OptionMatcher()

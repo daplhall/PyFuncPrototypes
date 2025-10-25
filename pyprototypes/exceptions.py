@@ -1,4 +1,3 @@
-import inspect
 from pyprototypes.BaseMatchers import FuncMetaData
 
 
@@ -8,3 +7,11 @@ class UnsupportedParameters(Exception):
 			f"\nError in the signature of '{meta.name}' "
 			f"in {meta.loc}\n" + error_msg
 		)
+
+
+class FixtureNotDefined(Exception):
+	pass
+
+
+class FixtureRecursionFailed(Exception):
+	pass
