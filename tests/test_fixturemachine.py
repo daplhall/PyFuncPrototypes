@@ -47,5 +47,8 @@ def test_missing_fixture():
 		print(potato)
 
 	machine = FixtureMachine()
-	with pytest.raises(FixtureNotDefined):
+	with pytest.raises(
+		FixtureNotDefined,
+		match="Fixture 'chips' is not defined\n",
+	):
 		machine.match(Signature.signature(testfunc), fix.fixtures)

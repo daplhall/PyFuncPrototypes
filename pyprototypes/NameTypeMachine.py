@@ -57,7 +57,7 @@ class MatcherMachine:
 
 	@staticmethod
 	def match_name(data: MachineData) -> States:
-		if NameMatcher.is_odd(data.signature, data.inpt):
+		if NameMatcher.has_oddities(data.signature, data.inpt):
 			return States.NAME_ERROR
 		else:
 			return States.WITH_TYPES
@@ -78,7 +78,7 @@ class MatcherMachine:
 
 	@staticmethod
 	def match_types(data: MachineData) -> States:
-		if TypeMatcher.is_odd(data.signature, data.inpt):
+		if TypeMatcher.has_oddities(data.signature, data.inpt):
 			return States.TYPE_ERROR
 		else:
 			return States.ERROR_HANDLE
@@ -87,6 +87,8 @@ class MatcherMachine:
 	def name_error(data: MachineData) -> States:
 		matches_tree = []
 		for odd in data.inpt:
+			if not NameMatcher.is_odd(data.signature, odd):
+				continue
 			if matches := NameMatcher.match_str(data.signature, odd):
 				matches_tree.append((odd, matches))
 		for written, match in matches_tree:
@@ -103,7 +105,7 @@ class MatcherMachine:
 		odd = TypeMatcher.match(overlap, data.signature, data.inpt)
 		for param, curr_type, corr_type in odd:
 			data.error_msg += (
-				f"* Wrong Type - Parameter {param}\n"
+				f"* Wrong Type - Parameter '{param}'\n"
 				f"\t it is '{curr_type.__name__}' "
 				f"it should be '{corr_type.__name__}'\n"
 			)

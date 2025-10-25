@@ -25,5 +25,8 @@ def test_machine_fail():
 	inpt_sig = Signature.signature(inpt)
 	meta = Signature.metadata(inpt)
 	matcher = MatcherMachine()
-	with pytest.raises(UnsupportedParameters):
+	with pytest.raises(
+		UnsupportedParameters,
+		match=r".*Parameter 'mnkey' is not supported.*",
+	):
 		assert not matcher.match(signature, inpt_sig, meta, True)

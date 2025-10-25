@@ -6,9 +6,9 @@ def test_NameMatcher_match(correct_names):
 	assert closest_match == ["money", "monkey"]
 
 
-def test_NameMatcher_is_odd(correct_names, odd_names):
-	assert NameMatcher.is_odd(correct_names, odd_names)
+def test_NameMatcher_has_oddities(correct_names, odd_names):
+	assert NameMatcher.has_oddities(correct_names, odd_names)
 
 
-def test_NameMatcher_not_is_odd(correct_names):
-	assert not NameMatcher.is_odd(correct_names, correct_names)
+def test_NameMatcher_not_has_oddities(correct_names):
+	assert not NameMatcher.has_oddities(correct_names, correct_names)

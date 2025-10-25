@@ -1,37 +1,74 @@
 # (WIP) Python Function Prototypes
 ![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) This project is currently WIP, so this readme is more to illustrate the goal of the project.
 
+This library currently provides a `Prototype` class which can check names of inpt functions
+and their associated types (optional). It also provides a fixture system inspired by pytest, which allows you to defined default values for the input function based on other functions. You can also nest the fixtures like pytest.
 
-This library provides a way to define an prototype interface for problems that require a function parameter. It checks the parameter names, types and return types to ensure
-that the input is correct. In case the functions does not match, it raises an exception with recommendations for what you were meant to type.
-## Example
-Lets start by defining an prototype interface
+The goal is to also provide a "class" prototype which allows you to bind a protocol to a class
+and their properties.
+
+# Examples
+## Names and types
+Here is an example of current functionality
 ```python
-import pyprototypes as ppt
+from pyprototypes.prototype import Prototype
 
-@ppt.ParamChecker
-def my_proto_type(income, tax, penalities):
+
+@Prototype
+def proto(income: int, tax: int, penalities: int):
 	pass
-```
-This here will define a prototype with the name `my_proto_type`.  
 
-Then to check weather or not a function follows the prototype
-```python
-def inpt_function(incm, tx, penaltis):
-	...
 
-my_proto_type.check(inpt_function)
+def inpt_function(incm: int, tx: int, penalities: float): ...
+
+
+proto.check(inpt_function)
 # From here we can assume that the function is correct
 ```
 Here the following error is thrown
-```
-Error in the signature of 'inpt_function' in <File of inpt function>   
+```python
+pyprototypes.exceptions.UnsupportedParameters: 
+Error in the signature of 'inpt_function' in <path-to-file>
 * Parameter 'incm' is not supported, did you mean:
         - income
-* Parameter 'penaltis' is not supported, did you mean:
-        - penalities
 * Parameter 'tx' is not supported, did you mean:
         - tax
+* Wrong Type - Parameter 'penalities'
+         it is 'float' it should be 'int'
 ```
+## Fixtures
+```python
+from pyprototypes.prototype import Prototype
 
-The checker will ear tag the function, such that when it encounters it again, it will just skip it.
+
+@Prototype
+def proto(foo: int, bar: str):
+	pass
+
+
+@proto.fixture
+def qar():
+	return 60
+
+
+@proto.fixture
+def foo():
+	return "Hello world"
+
+
+@proto.fixture
+def bar(qar):
+	return qar + 2
+
+
+def testfunc(bar: int, foo: str):
+	print(str(bar) + " " + foo)
+
+
+wrapped = fix.check(testfunc)
+wrapped()
+```
+This will print:
+```shell
+$ 62 Hello world
+```

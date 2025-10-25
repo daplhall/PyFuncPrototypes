@@ -41,8 +41,15 @@ class NameMatcher:
 		return [i[1] for i in tmp if min(tmp)[0] == i[0]]
 
 	@staticmethod
-	def is_odd(correct: dict[str, Any], names: dict[str, Any]) -> bool:
-		if set(correct) - set(names):
+	def has_oddities(correct: dict[str, Any], names: dict[str, Any]) -> bool:
+		if set(correct) ^ set(names):
+			return True
+		else:
+			return False
+
+	@staticmethod
+	def is_odd(correct: dict[str, Any], name: str) -> bool:
+		if not (set(correct) & {name}):
 			return True
 		else:
 			return False
@@ -79,8 +86,8 @@ class TypeMatcher:
 		]
 
 	@staticmethod
-	def is_odd(name_hits: dict[Any, type], arg: dict[Any, type]):
-		if set(name_hits.values()) - set(arg.values()):
+	def has_oddities(signature: dict[Any, type], inpt: dict[Any, type]):
+		if set(signature.items()) - set(inpt.items()):
 			return True
 		else:
 			return False
