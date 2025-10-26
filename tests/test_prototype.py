@@ -4,15 +4,13 @@ import pyprototypes.exceptions as exceptions
 
 
 def test_prototype_success(base_prototype):
-	def inpt(potato, pizza):
-		pass
+	def inpt(potato, pizza): ...
 
 	assert base_prototype.check(inpt) == inpt
 
 
 def test_prototype_name_fail(base_prototype):
-	def inpt(potat, piz):
-		pass
+	def inpt(potat, piz): ...
 
 	with pytest.raises(
 		exceptions.UnsupportedParameters,
@@ -22,8 +20,7 @@ def test_prototype_name_fail(base_prototype):
 
 
 def test_prototype_type_failure(typed_prototype):
-	def inpt(pizza: int, potato: float):
-		return pizza + potato
+	def inpt(pizza: int, potato: float): ...
 
 	with pytest.raises(
 		exceptions.UnsupportedParameters,

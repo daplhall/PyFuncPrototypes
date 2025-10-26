@@ -6,8 +6,7 @@ from pyprototypes import Prototype
 @pytest.fixture
 def base_prototype():
 	@Prototype
-	def proto(potato, pizza):
-		pass
+	def proto(potato, pizza): ...
 
 	return proto
 
@@ -15,8 +14,7 @@ def base_prototype():
 @pytest.fixture
 def fixture_prototype():
 	@Prototype
-	def proto_fixtures(potato, pizza):
-		pass
+	def proto_fixtures(potato, pizza): ...
 
 	@proto_fixtures.fixture
 	def depth():
@@ -36,7 +34,6 @@ def fixture_prototype():
 @pytest.fixture
 def typed_prototype():
 	@Prototype.typed
-	def proto_fixtures(potato: int, pizza: float):
-		pass
+	def proto_fixtures(potato: int, pizza: float): ...
 
 	return proto_fixtures

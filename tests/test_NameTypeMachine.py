@@ -5,12 +5,10 @@ from pyprototypes.exceptions import UnsupportedParameters
 from pyprototypes.NameTypeMachine import MatcherMachine
 
 
-def prototype(monkey: float, money: str, gorilla: int):
-	pass
+def prototype(monkey: float, money: str, gorilla: int): ...
 
 
-def inpt(mnkey: int, money: str, gorilla: str):
-	pass
+def inpt(mnkey: int, money: str, gorilla: str): ...
 
 
 def test_machine_success():

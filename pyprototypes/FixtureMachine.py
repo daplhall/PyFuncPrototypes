@@ -3,7 +3,7 @@ from enum import IntEnum, auto
 from typing import Any
 
 from pyprototypes.DictStack import DictStack
-from pyprototypes.exceptions import FixtureNotDefined, FixtureRecursionFailed
+from pyprototypes.exceptions import FixtureNotDefined
 from pyprototypes.FunctionMetaData import FuncMeta
 
 EMPTY = None
@@ -38,7 +38,7 @@ class FixtureMachine:
 		self.states = {
 			States.PARSE_SIGNATURES: self.parse_signatures,
 			States.RECURSION: self.recursion,
-			States.EVALUATE: self.evalutate,
+			States.EVALUATE: self.evaluate,
 			States.NOT_FIXTURE: self.not_fixture,
 		}
 
@@ -67,7 +67,7 @@ class FixtureMachine:
 			return States.NOT_FIXTURE
 
 	@staticmethod
-	def evalutate(data: MachineData, out: Output) -> States:
+	def evaluate(data: MachineData, out: Output) -> States:
 		arg, typing = data.signature.pop()
 		if data.fixtures[arg].signature:
 			out.kwards[arg] = data.fixtures[arg].func(**data.recursion_retrn)
@@ -87,8 +87,4 @@ class FixtureMachine:
 	def not_fixture(data: MachineData, out: Output) -> States:
 		name, _ = data.signature.top()
 		raise FixtureNotDefined(f"Fixture '{name}' is not defined\n")
-		return NotImplemented
-
-	@staticmethod
-	def PLACEHOLDER(self):
 		return NotImplemented

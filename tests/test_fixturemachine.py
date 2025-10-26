@@ -1,15 +1,14 @@
 import pytest
 
 from pyprototypes.BaseMatchers import Signature
-from pyprototypes.exceptions import FixtureNotDefined, FixtureRecursionFailed
+from pyprototypes.exceptions import FixtureNotDefined
 from pyprototypes.FixtureMachine import FixtureMachine
 from pyprototypes.prototype import Prototype
 
 
 def test_fixture():
 	@Prototype
-	def fix(pizza: int, potato: str):
-		pass
+	def fix(pizza: int, potato: str): ...
 
 	@fix.fixture
 	def chips():
@@ -23,8 +22,7 @@ def test_fixture():
 	def pizza(chips):
 		return chips + 2
 
-	def testfunc(pizza: int, potato: str):
-		print(str(pizza) + potato)
+	def testfunc(pizza: int, potato: str): ...
 
 	machine = FixtureMachine()
 	q = machine.match(Signature.signature(testfunc), fix.fixtures)
@@ -33,18 +31,12 @@ def test_fixture():
 
 def test_missing_fixture():
 	@Prototype
-	def fix(pizza: int, potato: str):
-		pass
+	def fix(pizza: int, potato: str): ...
 
-	def chips():
-		return 60
-
+	def chips(): ...
 	@fix.fixture
-	def potato(chips):
-		return "Hello world"
-
-	def testfunc(potato: str):
-		print(potato)
+	def potato(chips): ...
+	def testfunc(potato: str): ...
 
 	machine = FixtureMachine()
 	with pytest.raises(

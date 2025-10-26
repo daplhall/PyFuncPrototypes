@@ -1,2 +1,2 @@
-from pyprototypes.prototype import Prototype
-import pyprototypes.exceptions as exceptions
+import pyprototypes.exceptions as exceptions  # noqa: F401
+from pyprototypes.prototype import Prototype  # noqa: F401

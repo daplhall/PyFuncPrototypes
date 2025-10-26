@@ -65,7 +65,7 @@ def testfunc(bar: int, foo: str):
 	print(str(bar) + " " + foo)
 
 
-wrapped = fix.check(testfunc)
+wrapped = proto.check(testfunc)
 wrapped()
 ```
 This will print:

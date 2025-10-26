@@ -34,8 +34,6 @@ class MatcherMachine:
 			States.WITH_TYPES: self.with_types,
 			States.TYPE_ERROR: self.type_error,
 			States.ERROR_HANDLE: self.error_handle,
-			States.MATCH: self.SHOULD_NOT_RUN,
-			States.ERROR: self.SHOULD_NOT_RUN,
 		}
 
 	def match(
@@ -47,12 +45,10 @@ class MatcherMachine:
 	) -> bool:
 		state = States.MATCH_NAME
 		data = MachineData(signature, inpt, "", is_typed, meta)
-		while state != States.ERROR and state != States.MATCH:
+		while state != States.MATCH:
 			callback = self.states[state]
 			state = callback(data)
-		if state == States.ERROR:
-			return False
-		elif state == States.MATCH:
+		if state == States.MATCH:
 			return True
 
 	@staticmethod
@@ -110,7 +106,3 @@ class MatcherMachine:
 				f"it should be '{corr_type.__name__}'\n"
 			)
 		return States.ERROR_HANDLE
-
-	@staticmethod
-	def SHOULD_NOT_RUN(self, data):
-		return NotImplemented

@@ -1,4 +1,5 @@
 import inspect
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -6,21 +7,21 @@ from typing import Any
 @dataclass
 class FuncMetaData:
 	name: str
-	loc: str
+	loc: str | None
 
 
 class Signature:
 	"""Collects signature"""
 
 	@staticmethod
-	def signature(template: callable) -> dict[str, type]:
+	def signature(template: Callable) -> dict[str, type]:
 		return {
 			param.name: param.annotation
 			for param in inspect.signature(template).parameters.values()
 		}
 
 	@staticmethod
-	def metadata(template: callable) -> FuncMetaData:
+	def metadata(template: Callable) -> FuncMetaData:
 		return FuncMetaData(template.__name__, inspect.getsourcefile(template))
 
 
