@@ -4,7 +4,7 @@ from typing import Any
 from pyprototypes.BaseMatchers import Signature
 from pyprototypes.FixtureMachine import FixtureMachine
 from pyprototypes.FunctionMetaData import FuncMeta
-from pyprototypes.NameTypeMachine import MatcherMachine
+from pyprototypes.SignatureMachine import SignatureMachine
 
 
 class Prototype:
@@ -32,7 +32,7 @@ class Prototype:
 		return wrapper
 
 	def check(self, fnc: Callable) -> Callable:
-		matcher = MatcherMachine()
+		matcher = SignatureMachine()
 		inpt_sig = Signature.signature(fnc)
 		meta = Signature.metadata(fnc)
 		matcher.match(self.signature, inpt_sig, meta, self.is_typed)
