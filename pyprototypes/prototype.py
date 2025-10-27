@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from pyprototypes.BaseMatchers import NameMatcher, Signature
+from pyprototypes.BaseMatchers import Signature
 from pyprototypes.FixtureMachine import FixtureMachine
 from pyprototypes.FunctionMetaData import FuncMeta
 from pyprototypes.NameTypeMachine import MatcherMachine

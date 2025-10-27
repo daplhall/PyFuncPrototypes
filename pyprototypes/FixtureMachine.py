@@ -22,7 +22,8 @@ class Output:
 
 
 class States(IntEnum):
-	PARSE_SIGNATURES = auto()
+	CHECK_FOR_ARGS = auto()
+	FIXTURE_CHOICE = auto()
 	RECURSION = auto()
 	EVALUATE = auto()
 	NOT_FIXTURE = auto()
@@ -36,7 +37,8 @@ class FixtureMachine:
 
 	def __init__(self):
 		self.states = {
-			States.PARSE_SIGNATURES: self.parse_signatures,
+			States.CHECK_FOR_ARGS: self.check_for_args,
+			States.FIXTURE_CHOICE: self.fixture_choice,
 			States.RECURSION: self.recursion,
 			States.EVALUATE: self.evaluate,
 			States.NOT_FIXTURE: self.not_fixture,
@@ -45,18 +47,21 @@ class FixtureMachine:
 	def match(self, inpt_signature, fixtures) -> dict[str, Any]:
 		data = MachineData(DictStack(inpt_signature), fixtures, {})
 		out = Output({})
-		state = States.PARSE_SIGNATURES
+		state = States.CHECK_FOR_ARGS
 		while state != States.EXIT:
 			callback = self.states[state]
 			state = callback(data, out)
 		return out.kwards
 
 	@staticmethod
-	def parse_signatures(data: MachineData, out: Output) -> States:
+	def check_for_args(data: MachineData, out: Output) -> States:
 		if not data.signature:
 			return States.EXIT
+		return States.FIXTURE_CHOICE
 
-		arg, typing = data.signature.top()
+	@staticmethod
+	def fixture_choice(data: MachineData, out: Output) -> States:
+		arg, _ = data.signature.top()
 		if arg in data.fixtures:
 			fixture = data.fixtures[arg]
 			if fixture.signature:
@@ -68,16 +73,16 @@ class FixtureMachine:
 
 	@staticmethod
 	def evaluate(data: MachineData, out: Output) -> States:
-		arg, typing = data.signature.pop()
+		arg, _ = data.signature.pop()
 		if data.fixtures[arg].signature:
 			out.kwards[arg] = data.fixtures[arg].func(**data.recursion_retrn)
 		else:
 			out.kwards[arg] = data.fixtures[arg].func()
-		return States.PARSE_SIGNATURES
+		return States.CHECK_FOR_ARGS
 
 	@staticmethod
 	def recursion(data: MachineData, out: Output) -> States:
-		arg, typing = data.signature.top()
+		arg, _ = data.signature.top()
 		signature = data.fixtures[arg].signature
 		machine = FixtureMachine()
 		data.recursion_retrn = machine.match(signature, data.fixtures)

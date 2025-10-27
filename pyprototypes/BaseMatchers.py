@@ -1,6 +1,7 @@
 import inspect
 from collections.abc import Callable
 from dataclasses import dataclass
+from inspect import Parameter
 from typing import Any
 
 
@@ -16,7 +17,7 @@ class Signature:
 	@staticmethod
 	def signature(template: Callable) -> dict[str, type]:
 		return {
-			param.name: param.annotation
+			param.name: param
 			for param in inspect.signature(template).parameters.values()
 		}
 
@@ -78,12 +79,14 @@ class NameMatcher:
 class TypeMatcher:
 	@staticmethod
 	def match(
-		overlap: set[str], signature: dict[Any, type], inpt: dict[Any, type]
+		overlap: set[str],
+		signature: dict[Any, Parameter],
+		inpt: dict[Any, Parameter],
 	) -> list[tuple[Any, type, type]]:
 		return [
-			(param, mytype, signature[param])
+			(param, mytype.annotation, signature[param].annotation)
 			for param, mytype in filter(lambda x: x[0] in overlap, inpt.items())
-			if mytype != signature[param]
+			if mytype.annotation != signature[param]
 		]
 
 	@staticmethod
