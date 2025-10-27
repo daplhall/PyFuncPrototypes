@@ -1,5 +1,5 @@
 # (WIP) Python Function Prototypes
-![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) This project is currently WIP, so this readme is more to illustrate the goal of the project.
+![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) This project is currently WIP, APIs are very much subject to change.
 
 This library currently provides a `Prototype` class which can check names of inpt functions
 and their associated types (optional). It also provides a fixture system inspired by pytest, which allows you to defined default values for the input function based on other functions. You can also nest the fixtures like pytest.
