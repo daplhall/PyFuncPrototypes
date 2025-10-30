@@ -1,40 +1,48 @@
 @startuml FunctionPrototype
 hide empty description
-class OptionMatcher{
-	options
-	<<constructor>> OptionMatcher()
-	{method} match
-	{static}{method} lev
-}
-class Signature {
-	{static}{method} signature
+
+class Signature{
+	+{static} signature(function:callable) : dict
+	+{static} metadata(function:callable) : dict
 }
 
-class ParamChecker {
-	typing : bool
-	returning: bool
-	{method} <<constructor>>  ParamChecker
-	{method} check
-	{method} set_positionals
+class NameMatcher{
+	+{static} match_str(reference: dict, arg:str) : list
+	+{static} has_oddities(reference: dict, names: dict) : bool
+	+{static} is_odd(reference: dict, name: str) : bool
+	-{static} lev(a:str, b:str) : int
 }
 
-class FixtureHandler{
-	{method} <<constructor>> FixtureHandler
-	{method} fixture(param, default)
-	{method} apply
+class TypeMatcher{
+	+{static} match(overlap:set, signature: dict, inpt: dict) : list
+	+{static} has_oddities(signature: dict, inpt: dict) : bool
 }
 
-class FunctionPrototype {
-	<<constructor>> FunctionPrototype(inpt: Function)
-	{method} <<class method>> typing
-	{method} <<class method>> returning
-	{method} <<class method>> defaults
-	{method} <<class method>> Positionals
-	{method} enforce
+class Prototype{
+	
 }
 
-Signature <-- ParamChecker
-OptionMatcher <-- ParamChecker
-ParamChecker <-- FixtureHandler
-FixtureHandler<-- FunctionPrototype
+class FixtureMachine{
+	+ states : list[Enum]
+	+ match(inpt_signature: dict, fixtures: dict) : callable
+	--
+	States
+}
+class SignatureMachine{
+	+ states : list[Enum]
+	+ match(signature: dict, inpt:dict, meta: FuncMetaData, is_typed: bool) : bool
+	--
+	States
+}
+
+
+
+Prototype-->SignatureMachine
+Prototype-->FixtureMachine
+SignatureMachine-->NameMatcher
+SignatureMachine-->TypeMatcher
+NameMatcher ..>Signature
+TypeMatcher ..>Signature
+FixtureMachine ..>Signature
+
 @enduml
