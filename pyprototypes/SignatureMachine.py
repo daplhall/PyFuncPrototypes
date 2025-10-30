@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 
 from pyprototypes.BaseMatchers import (
-	MetaSignature,
 	NameMatcher,
 	TypeMatcher,
 )
 from pyprototypes.exceptions import UnsupportedParameters
+from pyprototypes.Signature import MetaSignature
 
 
 class States(IntEnum):

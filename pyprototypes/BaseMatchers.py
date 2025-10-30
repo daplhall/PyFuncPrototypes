@@ -1,27 +1,4 @@
-import inspect
-from collections.abc import Callable
-from dataclasses import dataclass
 from typing import Any
-
-
-@dataclass
-class MetaSignature:
-	name: str
-	func: Callable
-	signature: dict[str, type]
-
-
-class Signature:
-	"""Collects signature"""
-
-	@staticmethod
-	def signature(template: Callable) -> MetaSignature:
-		p = inspect.signature(template).parameters.values()
-		return MetaSignature(
-			template.__name__,
-			template,
-			{param.name: param.annotation for param in p},
-		)
 
 
 class NameMatcher:

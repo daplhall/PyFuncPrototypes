@@ -2,11 +2,11 @@ from collections.abc import Callable
 from enum import IntEnum, auto
 from typing import Any
 
-from pyprototypes.BaseMatchers import MetaSignature, Signature
 from pyprototypes.FixtureMachine import FixtureMachine
 from pyprototypes.interfaces.FixtureMatcherHeader import FixtureMatcher_t
 from pyprototypes.interfaces.PrototypeHeader import Prototype_T
 from pyprototypes.interfaces.SignatureMatcherHeader import SignatureMatcher_t
+from pyprototypes.Signature import MetaSignature, SignatureConstructed
 from pyprototypes.SignatureMachine import SignatureMachine
 
 
@@ -19,27 +19,37 @@ class Prototype:
 	def __init__(
 		self,
 		prototype: Callable,
+		*,
 		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
 		signature_matcher: SignatureMatcher_t = SignatureMachine(False),
+		signature_pipeline=SignatureConstructed,
 	):
 		self.signature_matcher = signature_matcher
 		self.fixture_matcher = fixture_matcher
+		self._get_signature = signature_pipeline
 
-		self._signature = Signature.signature(prototype)
+		self._signature = signature_pipeline.signature(prototype)
 		self._fixtures: dict[str, MetaSignature] = {}
 
 	@classmethod
 	def typed(
 		cls,
 		prototype: Callable,
+		*,
 		fixture_matcher=FixtureMachine(),
 		signature_matcher=SignatureMachine(True),
+		signature_pipeline=SignatureConstructed,
 	) -> Prototype_T:
-		self = cls(prototype, fixture_matcher, signature_matcher)
+		self = cls(
+			prototype,
+			fixture_matcher=fixture_matcher,
+			signature_matcher=signature_matcher,
+			signature_pipeline=signature_pipeline,
+		)
 		return self
 
 	def fixture(self, fnc) -> Callable:
-		meta = Signature.signature(fnc)
+		meta = self._get_signature.signature(fnc)
 		self._fixtures[meta.name] = meta
 		return fnc
 
@@ -51,7 +61,7 @@ class Prototype:
 		return wrapper
 
 	def function(self, fnc: Callable) -> Callable:
-		inpt_sig = Signature.signature(fnc)
+		inpt_sig = self._get_signature.signature(fnc)
 		self.signature_matcher.match(self._signature, inpt_sig)
 		if self._fixtures:
 			kwargs = self.fixture_matcher.match(inpt_sig, self._fixtures)

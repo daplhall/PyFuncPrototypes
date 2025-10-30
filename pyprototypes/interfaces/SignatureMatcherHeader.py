@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from pyprototypes.BaseMatchers import MetaSignature
+from pyprototypes.Signature import MetaSignature
 
 
 class SignatureMatcher_t(Protocol):

@@ -1,11 +1,10 @@
-from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Any
 
-from pyprototypes.BaseMatchers import MetaSignature
 from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
+from pyprototypes.Signature import MetaSignature
 
 
 @dataclass

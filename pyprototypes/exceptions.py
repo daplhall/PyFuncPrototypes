@@ -1,6 +1,6 @@
 import inspect
 
-from pyprototypes.BaseMatchers import MetaSignature
+from pyprototypes.Signature import MetaSignature
 
 
 class UnsupportedParameters(Exception):
