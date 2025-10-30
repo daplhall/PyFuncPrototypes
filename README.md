@@ -72,3 +72,16 @@ This will print:
 ```shell
 $ 62 Hello world
 ```
+## Running Perf & Flamegraph ; plus py-spy
+https://docs.python.org/3/howto/perf_profiling.html
+```bash
+PYTHONPERFSUPPORT=1 perf record -F 99 -a -g -- python main.py
+perf script | stackcollapse-perf.pl > out.perf-folded
+flamegraph.pl out.perf-folded > perf.svg
+firefox perf.svg
+```
+Pyspy with normal flamegraph
+```bash
+py-spy record -o test.prof -f raw -- python main.py
+flamegraph.pl test.prof > perf.svg
+```
