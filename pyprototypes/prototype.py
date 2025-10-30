@@ -31,14 +31,20 @@ class Prototype:
 
 		return wrapper
 
-	def check(self, fnc: Callable) -> Callable:
+	def function(self, fnc: Callable) -> Callable:
 		matcher = SignatureMachine()
 		inpt_sig = Signature.signature(fnc)
 		meta = Signature.metadata(fnc)
 		matcher.match(self.signature, inpt_sig, meta, self.is_typed)
 		if self.fixtures:
 			fixturematcher = FixtureMachine()
-			kwards = fixturematcher.match(inpt_sig, self.fixtures)
-			return self.wrap(fnc, kwards)
+			kwargs = fixturematcher.match(inpt_sig, self.fixtures)
+			fnc = self.wrap(fnc, kwargs)
+		setattr(fnc, f"{self}_tag", True)
+		return fnc
+
+	def check(self, fnc: Callable) -> Callable:
+		if out := hasattr(fnc, f"{self}_tag"):
+			return out
 		else:
-			return fnc
+			return NotImplemented

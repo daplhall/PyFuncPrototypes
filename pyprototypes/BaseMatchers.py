@@ -16,10 +16,8 @@ class Signature:
 
 	@staticmethod
 	def signature(template: Callable) -> dict[str, type]:
-		return {
-			param.name: param
-			for param in inspect.signature(template).parameters.values()
-		}
+		p = inspect.signature(template).parameters.values()
+		return {param.name: param for param in p}
 
 	@staticmethod
 	def metadata(template: Callable) -> FuncMetaData:

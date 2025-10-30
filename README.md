@@ -60,13 +60,12 @@ def foo():
 def bar(qar):
 	return qar + 2
 
-
+# fixtures should be defined before a given function
+@proto.function
 def testfunc(bar: int, foo: str):
 	print(str(bar) + " " + foo)
 
-
-wrapped = proto.check(testfunc)
-wrapped()
+testfunc()
 ```
 This will print:
 ```shell
