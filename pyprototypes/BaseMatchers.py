@@ -1,7 +1,6 @@
 import inspect
 from collections.abc import Callable
 from dataclasses import dataclass
-from inspect import Parameter
 from typing import Any
 
 

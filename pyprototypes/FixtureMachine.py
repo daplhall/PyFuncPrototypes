@@ -1,22 +1,17 @@
 from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
-from typing import Any, Protocol
+from typing import Any
 
+from pyprototypes.BaseMatchers import MetaSignature
 from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
-
-
-class FixtureMatcher_t(Protocol):
-	@abstractmethod
-	def match(signature, fixtures):
-		raise NotImplementedError
 
 
 @dataclass
 class MachineData:
 	signature: DictStack
-	fixtures: dict[str]
+	fixtures: dict[str, MetaSignature]
 	recursion_retrn: dict[str, Any]
 
 
@@ -48,7 +43,9 @@ class FixtureMachine:
 			States.NOT_FIXTURE: self.not_fixture,
 		}
 
-	def match(self, signature, fixtures) -> dict[str, Any]:
+	def match(
+		self, signature: MetaSignature, fixtures: dict[str, MetaSignature]
+	) -> dict[str, Any]:
 		data = MachineData(DictStack(signature), fixtures, {})
 		out = Output({})
 		state = States.CHECK_FOR_ARGS

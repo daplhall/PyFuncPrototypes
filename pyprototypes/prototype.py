@@ -1,32 +1,18 @@
-from abc import abstractmethod
 from collections.abc import Callable
-from typing import Any, Protocol
+from enum import IntEnum, auto
+from typing import Any
 
-from pyprototypes.BaseMatchers import Signature, MetaSignature
-from pyprototypes.FixtureMachine import FixtureMachine, FixtureMatcher_t
-from pyprototypes.SignatureMachine import SignatureMachine, SignatureMatcher_t
+from pyprototypes.BaseMatchers import MetaSignature, Signature
+from pyprototypes.FixtureMachine import FixtureMachine
+from pyprototypes.interfaces.FixtureMatcherHeader import FixtureMatcher_t
+from pyprototypes.interfaces.PrototypeHeader import Prototype_T
+from pyprototypes.interfaces.SignatureMatcherHeader import SignatureMatcher_t
+from pyprototypes.SignatureMachine import SignatureMachine
 
 
-class Prototype_T(Protocol):
-	signature_matcher: SignatureMatcher_t
-	fixture_matcher: FixtureMatcher_t
-
-	@classmethod
-	@abstractmethod
-	def typed(cls, prototype: Callable):
-		raise NotImplementedError
-
-	@abstractmethod
-	def fixture(self, fnc: Callable) -> Callable:
-		raise NotImplementedError
-
-	@abstractmethod
-	def function(self, fnc: Callable) -> Callable:
-		raise NotImplementedError
-
-	@abstractmethod
-	def check(self, fnc: Callable) -> Callable:
-		raise NotImplementedError
+class ProtocolCode(IntEnum):
+	OK = auto()
+	FAIL = auto()
 
 
 class Prototype:
@@ -34,7 +20,7 @@ class Prototype:
 		self,
 		prototype: Callable,
 		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
-		signature_matcher: FixtureMatcher_t = SignatureMachine(False),
+		signature_matcher: SignatureMatcher_t = SignatureMachine(False),
 	):
 		self.signature_matcher = signature_matcher
 		self.fixture_matcher = fixture_matcher
@@ -48,7 +34,7 @@ class Prototype:
 		prototype: Callable,
 		fixture_matcher=FixtureMachine(),
 		signature_matcher=SignatureMachine(True),
-	):
+	) -> Prototype_T:
 		self = cls(prototype, fixture_matcher, signature_matcher)
 		return self
 
@@ -73,8 +59,8 @@ class Prototype:
 		setattr(fnc, f"{self}_tag", True)
 		return fnc
 
-	def check(self, fnc: Callable) -> Callable:
-		if out := hasattr(fnc, f"{self}_tag"):
-			return out
+	def check(self, fnc: Callable) -> ProtocolCode:
+		if hasattr(fnc, f"{self}_tag"):
+			return ProtocolCode.OK
 		else:
-			return NotImplemented
+			return ProtocolCode.FAIL

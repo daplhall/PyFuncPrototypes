@@ -1,7 +1,5 @@
-from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
-from typing import Protocol
 
 from pyprototypes.BaseMatchers import (
 	MetaSignature,
@@ -9,14 +7,6 @@ from pyprototypes.BaseMatchers import (
 	TypeMatcher,
 )
 from pyprototypes.exceptions import UnsupportedParameters
-
-
-class SignatureMatcher_t(Protocol):
-	is_typed: bool
-
-	@abstractmethod
-	def match(reference, signature):
-		raise NotImplementedError
 
 
 class States(IntEnum):
@@ -51,8 +41,8 @@ class SignatureMachine:
 
 	def match(
 		self,
-		reference: dict,
-		signature: dict,
+		reference: MetaSignature,
+		signature: MetaSignature,
 	) -> bool:
 		state = States.MATCH_NAME
 		data = MachineData(
