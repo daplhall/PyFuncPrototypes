@@ -1,11 +1,16 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
-from typing import Any
+from typing import Any, Protocol
 
 from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
 
-EMPTY = None
+
+class FixtureMatcher_t(Protocol):
+	@abstractmethod
+	def match(signature, fixtures):
+		raise NotImplementedError
 
 
 @dataclass
@@ -43,8 +48,8 @@ class FixtureMachine:
 			States.NOT_FIXTURE: self.not_fixture,
 		}
 
-	def match(self, inpt_signature, fixtures) -> dict[str, Any]:
-		data = MachineData(DictStack(inpt_signature), fixtures, {})
+	def match(self, signature, fixtures) -> dict[str, Any]:
+		data = MachineData(DictStack(signature), fixtures, {})
 		out = Output({})
 		state = States.CHECK_FOR_ARGS
 		while state != States.EXIT:

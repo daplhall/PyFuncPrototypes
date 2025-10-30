@@ -19,7 +19,9 @@ class Signature:
 	def signature(template: Callable) -> MetaSignature:
 		p = inspect.signature(template).parameters.values()
 		return MetaSignature(
-			template.__name__, template, {param.name: param for param in p}
+			template.__name__,
+			template,
+			{param.name: param.annotation for param in p},
 		)
 
 
@@ -77,15 +79,15 @@ class TypeMatcher:
 	@staticmethod
 	def match(
 		overlap: set[str],
-		signature: dict[Any, Parameter],
-		inpt: dict[Any, Parameter],
+		reference: dict[Any, type],
+		signature: dict[Any, type],
 	) -> list[tuple[Any, type, type]]:
 		return [
-			(param, mytype.annotation, signature[param].annotation)
+			(param, mytype, reference[param])
 			for param, mytype in filter(
-				lambda x: x[0] in overlap, inpt.signature.items()
+				lambda x: x[0] in overlap, signature.items()
 			)
-			if mytype.annotation != signature[param]
+			if mytype != reference[param]
 		]
 
 	@staticmethod

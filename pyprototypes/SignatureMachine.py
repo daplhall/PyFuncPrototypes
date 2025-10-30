@@ -11,12 +11,12 @@ from pyprototypes.BaseMatchers import (
 from pyprototypes.exceptions import UnsupportedParameters
 
 
-class SignatureMachineInterface(Protocol):
+class SignatureMatcher_t(Protocol):
 	is_typed: bool
 
 	@abstractmethod
-	def match(self, reference: MetaSignature, inpt: MetaSignature):
-		pass
+	def match(reference, signature):
+		raise NotImplementedError
 
 
 class States(IntEnum):
@@ -35,12 +35,11 @@ class MachineData:
 	reference: MetaSignature
 	inpt: MetaSignature
 	error_msg: str
-	is_typed: bool
 
 
 class SignatureMachine:
-	def __init__(self, is_typed):
-		self.is_typed = True
+	def __init__(self, is_typed: bool):
+		self.is_typed = is_typed
 		self.states = {
 			States.MATCH_NAME: self.match_name,
 			States.NAME_ERROR: self.name_error,
@@ -52,19 +51,22 @@ class SignatureMachine:
 
 	def match(
 		self,
+		reference: dict,
 		signature: dict,
-		inpt: dict,
 	) -> bool:
 		state = States.MATCH_NAME
-		data = MachineData(signature, inpt, "", self.is_typed)
+		data = MachineData(
+			reference,
+			signature,
+			"",
+		)
 		while state != States.MATCH:
 			callback = self.states[state]
 			state = callback(data)
 		if state == States.MATCH:
 			return True
 
-	@staticmethod
-	def match_name(data: MachineData) -> States:
+	def match_name(self, data: MachineData) -> States:
 		if NameMatcher.has_oddities(
 			data.reference.signature, data.inpt.signature
 		):
@@ -72,22 +74,19 @@ class SignatureMachine:
 		else:
 			return States.WITH_TYPES
 
-	@staticmethod
-	def with_types(data: MachineData) -> States:
-		if data.is_typed:
+	def with_types(self, data: MachineData) -> States:
+		if self.is_typed:
 			return States.MATCH_TYPES
 		else:
 			return States.ERROR_HANDLE
 
-	@staticmethod
-	def error_handle(data: MachineData) -> States:
+	def error_handle(self, data: MachineData) -> States:
 		if data.error_msg:
 			raise UnsupportedParameters(data.error_msg, data.inpt)
 		else:
 			return States.MATCH
 
-	@staticmethod
-	def match_types(data: MachineData) -> States:
+	def match_types(self, data: MachineData) -> States:
 		if TypeMatcher.has_oddities(
 			data.reference.signature, data.inpt.signature
 		):
@@ -95,8 +94,7 @@ class SignatureMachine:
 		else:
 			return States.ERROR_HANDLE
 
-	@staticmethod
-	def name_error(data: MachineData) -> States:
+	def name_error(self, data: MachineData) -> States:
 		matches_tree = []
 		for odd in data.inpt.signature:
 			if not NameMatcher.is_odd(data.reference.signature, odd):
@@ -111,10 +109,11 @@ class SignatureMachine:
 				data.error_msg += f"\t- {suggestion}\n"
 		return States.WITH_TYPES
 
-	@staticmethod
-	def type_error(data: MachineData) -> States:
+	def type_error(self, data: MachineData) -> States:
 		overlap = set(data.reference.signature) & set(data.inpt.signature)
-		odd = TypeMatcher.match(overlap, data.reference.signature, data.inpt)
+		odd = TypeMatcher.match(
+			overlap, data.reference.signature, data.inpt.signature
+		)
 		for param, curr_type, corr_type in odd:
 			data.error_msg += (
 				f"* Wrong Type - Parameter '{param}'\n"

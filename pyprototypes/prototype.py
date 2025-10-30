@@ -2,12 +2,15 @@ from abc import abstractmethod
 from collections.abc import Callable
 from typing import Any, Protocol
 
-from pyprototypes.BaseMatchers import Signature
-from pyprototypes.FixtureMachine import FixtureMachine
-from pyprototypes.SignatureMachine import SignatureMachine
+from pyprototypes.BaseMatchers import Signature, MetaSignature
+from pyprototypes.FixtureMachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.SignatureMachine import SignatureMachine, SignatureMatcher_t
 
 
 class Prototype_T(Protocol):
+	signature_matcher: SignatureMatcher_t
+	fixture_matcher: FixtureMatcher_t
+
 	@classmethod
 	@abstractmethod
 	def typed(cls, prototype: Callable):
@@ -27,15 +30,26 @@ class Prototype_T(Protocol):
 
 
 class Prototype:
-	def __init__(self, prototype: Callable, is_typed=False):
+	def __init__(
+		self,
+		prototype: Callable,
+		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
+		signature_matcher: FixtureMatcher_t = SignatureMachine(False),
+	):
+		self.signature_matcher = signature_matcher
+		self.fixture_matcher = fixture_matcher
+
 		self._signature = Signature.signature(prototype)
-		self._fixtures: dict[str,] = {}
-		self._is_typed = is_typed
+		self._fixtures: dict[str, MetaSignature] = {}
 
 	@classmethod
-	def typed(cls, prototype: Callable):
-		self = cls(prototype)
-		self._is_typed = True
+	def typed(
+		cls,
+		prototype: Callable,
+		fixture_matcher=FixtureMachine(),
+		signature_matcher=SignatureMachine(True),
+	):
+		self = cls(prototype, fixture_matcher, signature_matcher)
 		return self
 
 	def fixture(self, fnc) -> Callable:
@@ -51,12 +65,10 @@ class Prototype:
 		return wrapper
 
 	def function(self, fnc: Callable) -> Callable:
-		matcher = SignatureMachine(self._is_typed)
 		inpt_sig = Signature.signature(fnc)
-		matcher.match(self._signature, inpt_sig)
+		self.signature_matcher.match(self._signature, inpt_sig)
 		if self._fixtures:
-			fixturematcher = FixtureMachine()
-			kwargs = fixturematcher.match(inpt_sig, self._fixtures)
+			kwargs = self.fixture_matcher.match(inpt_sig, self._fixtures)
 			fnc = self._wrap(fnc, kwargs)
 		setattr(fnc, f"{self}_tag", True)
 		return fnc
