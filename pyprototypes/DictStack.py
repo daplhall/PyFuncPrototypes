@@ -16,4 +16,4 @@ class DictStack:
 		return self._name, self._sig
 
 	def __bool__(self):
-		return bool(self._name)
+		return self._name is not None
