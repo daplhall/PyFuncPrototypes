@@ -4,7 +4,6 @@ from typing import Any
 
 from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.FunctionMetaData import FuncMeta
 
 EMPTY = None
 
@@ -12,7 +11,7 @@ EMPTY = None
 @dataclass
 class MachineData:
 	signature: DictStack
-	fixtures: dict[str, FuncMeta]
+	fixtures: dict[str]
 	recursion_retrn: dict[str, Any]
 
 
@@ -83,9 +82,8 @@ class FixtureMachine:
 	@staticmethod
 	def recursion(data: MachineData, out: Output) -> States:
 		arg, _ = data.signature.top()
-		signature = data.fixtures[arg].signature
 		machine = FixtureMachine()
-		data.recursion_retrn = machine.match(signature, data.fixtures)
+		data.recursion_retrn = machine.match(data.fixtures[arg], data.fixtures)
 		return States.EVALUATE
 
 	@staticmethod

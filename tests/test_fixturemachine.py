@@ -25,7 +25,7 @@ def test_fixture():
 	def testfunc(pizza: int, potato: str): ...
 
 	machine = FixtureMachine()
-	q = machine.match(Signature.signature(testfunc), fix.fixtures)
+	q = machine.match(Signature.signature(testfunc), fix._fixtures)
 	assert q == {"pizza": 62, "potato": "Hello world"}
 
 
@@ -43,4 +43,4 @@ def test_missing_fixture():
 		FixtureNotDefined,
 		match="Fixture 'chips' is not defined\n",
 	):
-		machine.match(Signature.signature(testfunc), fix.fixtures)
+		machine.match(Signature.signature(testfunc), fix._fixtures)

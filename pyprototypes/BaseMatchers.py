@@ -6,22 +6,21 @@ from typing import Any
 
 
 @dataclass
-class FuncMetaData:
+class MetaSignature:
 	name: str
-	loc: str | None
+	func: Callable
+	signature: dict[str, type]
 
 
 class Signature:
 	"""Collects signature"""
 
 	@staticmethod
-	def signature(template: Callable) -> dict[str, type]:
+	def signature(template: Callable) -> MetaSignature:
 		p = inspect.signature(template).parameters.values()
-		return {param.name: param for param in p}
-
-	@staticmethod
-	def metadata(template: Callable) -> FuncMetaData:
-		return FuncMetaData(template.__name__, inspect.getsourcefile(template))
+		return MetaSignature(
+			template.__name__, template, {param.name: param for param in p}
+		)
 
 
 class NameMatcher:
@@ -83,7 +82,9 @@ class TypeMatcher:
 	) -> list[tuple[Any, type, type]]:
 		return [
 			(param, mytype.annotation, signature[param].annotation)
-			for param, mytype in filter(lambda x: x[0] in overlap, inpt.items())
+			for param, mytype in filter(
+				lambda x: x[0] in overlap, inpt.signature.items()
+			)
 			if mytype.annotation != signature[param]
 		]
 

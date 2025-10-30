@@ -1,11 +1,13 @@
-from pyprototypes.BaseMatchers import FuncMetaData
+import inspect
+
+from pyprototypes.BaseMatchers import MetaSignature
 
 
 class UnsupportedParameters(Exception):
-	def __init__(self, error_msg: str, meta: FuncMetaData):
+	def __init__(self, error_msg: str, meta: MetaSignature):
 		super().__init__(
 			f"\nError in the signature of '{meta.name}' "
-			f"in {meta.loc}\n" + error_msg
+			f"in {inspect.getsourcefile(meta.func)}\n" + error_msg
 		)
 
 
