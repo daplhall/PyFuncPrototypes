@@ -18,7 +18,7 @@ from pyprototypes.prototype import Prototype
 def proto(income: int, tax: int, penalities: int):
 	pass
 
-
+@proto.function
 def inpt_function(incm: int, tx: int, penalities: float): ...
 
 
