@@ -18,7 +18,7 @@ class FixFinder_t(Protocol):
 
 @dataclass
 class MachineData:
-	signature: DictStack
+	arg_stack: DictStack
 	fixtures: dict[str, SigMeta]
 	recursion_retrn: dict[str, Any]
 
@@ -63,12 +63,12 @@ class FixFinder:
 		return out.kwards
 
 	def check_for_args(self, data: MachineData, out: Output) -> States:
-		if not data.signature:
+		if not data.arg_stack:
 			return States.EXIT
 		return States.FIXTURE_CHOICE
 
 	def fixture_choice(self, data: MachineData, out: Output) -> States:
-		arg, _ = data.signature.top()
+		arg, _ = data.arg_stack.top()
 		if arg in data.fixtures:
 			fixture = data.fixtures[arg]
 			if fixture.signature:
@@ -79,7 +79,7 @@ class FixFinder:
 			return States.NOT_FIXTURE
 
 	def evaluate(self, data: MachineData, out: Output) -> States:
-		arg, _ = data.signature.pop()
+		arg, _ = data.arg_stack.pop()
 		if data.fixtures[arg].signature:
 			out.kwards[arg] = data.fixtures[arg].func(**data.recursion_retrn)
 		else:
@@ -87,11 +87,11 @@ class FixFinder:
 		return States.CHECK_FOR_ARGS
 
 	def recursion(self, data: MachineData, out: Output) -> States:
-		arg, _ = data.signature.top()
+		arg, _ = data.arg_stack.top()
 		data.recursion_retrn = self.match(data.fixtures[arg], data.fixtures)
 		return States.EVALUATE
 
 	def not_fixture(self, data: MachineData, out: Output) -> States:
-		name, _ = data.signature.top()
+		name, _ = data.arg_stack.top()
 		raise FixtureNotDefined(f"Fixture '{name}' is not defined\n")
 		return NotImplemented
