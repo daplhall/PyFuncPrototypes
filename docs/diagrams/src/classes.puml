@@ -2,47 +2,29 @@
 hide empty description
 
 class Signature{
-	+{static} signature(function:callable) : dict
-	+{static} metadata(function:callable) : dict
 }
 
 class NameMatcher{
-	+{static} match_str(reference: dict, arg:str) : list
-	+{static} has_oddities(reference: dict, names: dict) : bool
-	+{static} is_odd(reference: dict, name: str) : bool
-	-{static} lev(a:str, b:str) : int
 }
 
-class TypeMatcher{
-	+{static} match(overlap:set, signature: dict, inpt: dict) : list
-	+{static} has_oddities(signature: dict, inpt: dict) : bool
+class ArgChecker{
 }
 
 class Prototype{
 	
 }
 
-class FixtureMachine{
-	+ states : list[Enum]
-	+ match(inpt_signature: dict, fixtures: dict) : callable
-	--
-	States
+class FixFinder{
 }
 class ArgChecker{
-	+ states : list[Enum]
-	+ match(signature: dict, inpt:dict, meta: FuncMetaData, is_typed: bool) : bool
-	--
-	States
 }
 
 
 
-Prototype-->ArgChecker
-Prototype-->FixtureMachine
+Prototype..>ArgChecker
+Prototype..>FixFinder
 ArgChecker-->NameMatcher
 ArgChecker-->TypeMatcher
-NameMatcher ..>Signature
-TypeMatcher ..>Signature
-FixtureMachine ..>Signature
+Prototype ..> Signature
 
 @enduml

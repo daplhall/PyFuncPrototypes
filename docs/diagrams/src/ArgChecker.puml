@@ -1,13 +1,13 @@
 @startuml
 top to bottom direction
 hide empty description
-state matcher {
+state ArgChecker {
 	state entry <<entrypoint>>
-	state error <<exitpoint>>
 	state match <<exitpoint>>
 	state do_types <<choice>>
 	state type_error : record the error
 	state name_error : record the error
+	state error : Raises Exception
 	entry --> match_name : With\nnames
 	match_name --> name_error : Error 
 	match_name --> do_types : Matching
@@ -25,7 +25,6 @@ state matcher {
 
 [*] --> entry
 match --> [*]
-error --> [*]
 
 
 @enduml

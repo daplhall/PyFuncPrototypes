@@ -3,12 +3,12 @@ top to bottom direction
 hide empty description
 
 
-state FixtureMachine {
+state FixFinder {
     state entry <<entrypoint>>
     state exit <<exitpoint>>
     state c <<choice>>
     state check_for_args <<choice>>
-    state "not fixture" as not_fixture : Error state
+    state "not fixture" as not_fixture : Raises Exception
     state evalutate : exit/ iterates to next arg
     entry --> check_for_args
     check_for_args --> c : args\nleft 
@@ -17,7 +17,6 @@ state FixtureMachine {
     recursion --> evalutate
     evalutate --> check_for_args
     c --> not_fixture: arg is not\nfixture
-    not_fixture -> exit
     check_for_args -> exit :  no more args
 }
 
