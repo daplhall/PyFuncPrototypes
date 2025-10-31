@@ -1,8 +1,8 @@
 import pytest
 
 from pyprototypes.exceptions import UnsupportedParameters
-from pyprototypes.Signature import SignatureInspect
-from pyprototypes.SignatureMachine import SignatureMachine
+from pyprototypes.signature import SignatureInspect
+from pyprototypes.signaturemachine import SignatureMachine
 
 
 def prototype(monkey: float, money: str, gorilla: int): ...

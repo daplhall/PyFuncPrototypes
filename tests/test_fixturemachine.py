@@ -1,9 +1,9 @@
 import pytest
 
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.FixtureMachine import FixtureMachine
+from pyprototypes.fixturemachine import FixtureMachine
 from pyprototypes.prototype import Prototype
-from pyprototypes.Signature import SignatureInspect
+from pyprototypes.signature import SignatureInspect
 
 
 def test_fixture():
