@@ -1,27 +1,4 @@
-import inspect
-from collections.abc import Callable
-from dataclasses import dataclass
-from inspect import Parameter
 from typing import Any
-
-
-@dataclass
-class FuncMetaData:
-	name: str
-	loc: str | None
-
-
-class Signature:
-	"""Collects signature"""
-
-	@staticmethod
-	def signature(template: Callable) -> dict[str, type]:
-		p = inspect.signature(template).parameters.values()
-		return {param.name: param for param in p}
-
-	@staticmethod
-	def metadata(template: Callable) -> FuncMetaData:
-		return FuncMetaData(template.__name__, inspect.getsourcefile(template))
 
 
 class NameMatcher:
@@ -78,13 +55,15 @@ class TypeMatcher:
 	@staticmethod
 	def match(
 		overlap: set[str],
-		signature: dict[Any, Parameter],
-		inpt: dict[Any, Parameter],
+		reference: dict[Any, type],
+		signature: dict[Any, type],
 	) -> list[tuple[Any, type, type]]:
 		return [
-			(param, mytype.annotation, signature[param].annotation)
-			for param, mytype in filter(lambda x: x[0] in overlap, inpt.items())
-			if mytype.annotation != signature[param]
+			(param, mytype, reference[param])
+			for param, mytype in filter(
+				lambda x: x[0] in overlap, signature.items()
+			)
+			if mytype != reference[param]
 		]
 
 	@staticmethod

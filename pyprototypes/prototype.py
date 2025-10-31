@@ -1,30 +1,82 @@
+from abc import abstractmethod
 from collections.abc import Callable
-from typing import Any
+from enum import IntEnum, auto
+from typing import Any, Protocol
 
-from pyprototypes.BaseMatchers import Signature
-from pyprototypes.FixtureMachine import FixtureMachine
-from pyprototypes.FunctionMetaData import FuncMeta
-from pyprototypes.SignatureMachine import SignatureMachine
+from pyprototypes.fixturemachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.signature import (
+	MetaSignature,
+	Signature_T,
+	SignatureConstructed,
+)
+from pyprototypes.signaturemachine import SignatureMachine, SignatureMatcher_t
+
+TYPED = True
+
+
+class ProtocolCode(IntEnum):
+	OK = auto()
+	FAIL = auto()
+
+
+class Prototype_T(Protocol):
+	@classmethod
+	@abstractmethod
+	def typed(cls, prototype: Callable) -> "Prototype_T":
+		raise NotImplementedError
+
+	@abstractmethod
+	def fixture(self, fnc: Callable) -> Callable:
+		raise NotImplementedError
+
+	@abstractmethod
+	def function(self, fnc: Callable) -> Callable:
+		raise NotImplementedError
+
+	@abstractmethod
+	def check(self, fnc: Callable) -> ProtocolCode:
+		raise NotImplementedError
 
 
 class Prototype:
-	def __init__(self, prototype: Callable, is_typed=False):
-		self.signature = Signature.signature(prototype)
-		self.fixtures: dict[str, FuncMeta] = {}
-		self.is_typed = is_typed
+	def __init__(
+		self,
+		prototype: Callable,
+		*,
+		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
+		signature_matcher: SignatureMatcher_t = SignatureMachine(not TYPED),
+		signature_pipeline: Signature_T = SignatureConstructed,
+	):
+		self.signature_matcher = signature_matcher
+		self.fixture_matcher = fixture_matcher
+		self._get_signature = signature_pipeline
+
+		self._signature = signature_pipeline.signature(prototype)
+		self._fixtures: dict[str, MetaSignature] = {}
 
 	@classmethod
-	def typed(cls, prototype: Callable):
-		self = cls(prototype)
-		self.is_typed = True
+	def typed(
+		cls,
+		prototype: Callable,
+		*,
+		fixture_matcher=FixtureMachine(),
+		signature_matcher=SignatureMachine(TYPED),
+		signature_pipeline=SignatureConstructed,
+	) -> Prototype_T:
+		self = cls(
+			prototype,
+			fixture_matcher=fixture_matcher,
+			signature_matcher=signature_matcher,
+			signature_pipeline=signature_pipeline,
+		)
 		return self
 
 	def fixture(self, fnc) -> Callable:
-		meta = FuncMeta(fnc)
-		self.fixtures[meta.name] = meta
+		meta = self._get_signature.signature(fnc)
+		self._fixtures[meta.name] = meta
 		return fnc
 
-	def wrap(self, fnc: Callable, defaults: dict[str, Any]) -> Callable:
+	def _wrap(self, fnc: Callable, defaults: dict[str, Any]) -> Callable:
 		def wrapper(**kwards):
 			kwards.update(defaults)
 			return fnc(**kwards)
@@ -32,19 +84,16 @@ class Prototype:
 		return wrapper
 
 	def function(self, fnc: Callable) -> Callable:
-		matcher = SignatureMachine()
-		inpt_sig = Signature.signature(fnc)
-		meta = Signature.metadata(fnc)
-		matcher.match(self.signature, inpt_sig, meta, self.is_typed)
-		if self.fixtures:
-			fixturematcher = FixtureMachine()
-			kwargs = fixturematcher.match(inpt_sig, self.fixtures)
-			fnc = self.wrap(fnc, kwargs)
+		inpt_sig = self._get_signature.signature(fnc)
+		self.signature_matcher.match(self._signature, inpt_sig)
+		if self._fixtures:
+			kwargs = self.fixture_matcher.match(inpt_sig, self._fixtures)
+			fnc = self._wrap(fnc, kwargs)
 		setattr(fnc, f"{self}_tag", True)
 		return fnc
 
-	def check(self, fnc: Callable) -> Callable:
-		if out := hasattr(fnc, f"{self}_tag"):
-			return out
+	def check(self, fnc: Callable) -> ProtocolCode:
+		if hasattr(fnc, f"{self}_tag"):
+			return ProtocolCode.OK
 		else:
-			return NotImplemented
+			return ProtocolCode.FAIL

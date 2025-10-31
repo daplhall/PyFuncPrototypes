@@ -1,8 +1,8 @@
 import pytest
 
-from pyprototypes.BaseMatchers import Signature
 from pyprototypes.exceptions import UnsupportedParameters
-from pyprototypes.SignatureMachine import SignatureMachine
+from pyprototypes.signature import SignatureInspect
+from pyprototypes.signaturemachine import SignatureMachine
 
 
 def prototype(monkey: float, money: str, gorilla: int): ...
@@ -12,19 +12,17 @@ def inpt(mnkey: int, money: str, gorilla: str): ...
 
 
 def test_machine_success():
-	signature = Signature.signature(prototype)
-	meta = Signature.metadata(prototype)
-	matcher = SignatureMachine()
-	assert matcher.match(signature, signature, meta, True)
+	signature = SignatureInspect.signature(prototype)
+	matcher = SignatureMachine(True)
+	assert matcher.match(signature, signature)
 
 
 def test_machine_fail():
-	signature = Signature.signature(prototype)
-	inpt_sig = Signature.signature(inpt)
-	meta = Signature.metadata(inpt)
-	matcher = SignatureMachine()
+	signature = SignatureInspect.signature(prototype)
+	inpt_sig = SignatureInspect.signature(inpt)
+	matcher = SignatureMachine(is_typed=True)
 	with pytest.raises(
 		UnsupportedParameters,
 		match=r".*Parameter 'mnkey' is not supported.*",
 	):
-		assert not matcher.match(signature, inpt_sig, meta, True)
+		assert not matcher.match(signature, inpt_sig)

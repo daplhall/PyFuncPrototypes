@@ -1,18 +1,25 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
-from typing import Any
+from typing import Any, Protocol
 
-from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.FunctionMetaData import FuncMeta
+from pyprototypes.signature import MetaSignature
+from pyprototypes.stack import DictStack
 
-EMPTY = None
+
+class FixtureMatcher_t(Protocol):
+	@abstractmethod
+	def match(
+		self, signature: MetaSignature, fixtures: dict[str, MetaSignature]
+	) -> dict[str, Any]:
+		raise NotImplementedError
 
 
 @dataclass
 class MachineData:
 	signature: DictStack
-	fixtures: dict[str, FuncMeta]
+	fixtures: dict[str, MetaSignature]
 	recursion_retrn: dict[str, Any]
 
 
@@ -44,8 +51,10 @@ class FixtureMachine:
 			States.NOT_FIXTURE: self.not_fixture,
 		}
 
-	def match(self, inpt_signature, fixtures) -> dict[str, Any]:
-		data = MachineData(DictStack(inpt_signature), fixtures, {})
+	def match(
+		self, signature: MetaSignature, fixtures: dict[str, MetaSignature]
+	) -> dict[str, Any]:
+		data = MachineData(DictStack(signature), fixtures, {})
 		out = Output({})
 		state = States.CHECK_FOR_ARGS
 		while state != States.EXIT:
@@ -83,9 +92,8 @@ class FixtureMachine:
 	@staticmethod
 	def recursion(data: MachineData, out: Output) -> States:
 		arg, _ = data.signature.top()
-		signature = data.fixtures[arg].signature
 		machine = FixtureMachine()
-		data.recursion_retrn = machine.match(signature, data.fixtures)
+		data.recursion_retrn = machine.match(data.fixtures[arg], data.fixtures)
 		return States.EVALUATE
 
 	@staticmethod

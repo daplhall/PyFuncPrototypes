@@ -23,7 +23,10 @@ def test_prototype_name_fail(base_prototype):
 def test_prototype_type_failure(typed_prototype):
 	with pytest.raises(
 		exceptions.UnsupportedParameters,
-		match=r".*Wrong Type - Parameter 'pizza'.*",
+		match=(
+			r".*Wrong Type - Parameter 'pizza'\n"
+			r"\t it is 'int' it should be 'float'\n.*"
+		),
 	):
 
 		@typed_prototype.function
