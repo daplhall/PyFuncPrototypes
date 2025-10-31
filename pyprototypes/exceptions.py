@@ -1,10 +1,10 @@
 import inspect
 
-from pyprototypes.signature import MetaSignature
+from pyprototypes.signature import SigMeta
 
 
 class UnsupportedParameters(Exception):
-	def __init__(self, error_msg: str, meta: MetaSignature):
+	def __init__(self, error_msg: str, meta: SigMeta):
 		super().__init__(
 			f"\nError in the signature of '{meta.name}' "
 			f"in {inspect.getsourcefile(meta.func)}\n" + error_msg

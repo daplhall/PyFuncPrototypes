@@ -1,7 +1,7 @@
 import pytest
 
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.fixturemachine import FixtureMachine
+from pyprototypes.fixtures import FixFinder
 from pyprototypes.prototype import Prototype
 from pyprototypes.signature import SignatureInspect
 
@@ -24,8 +24,8 @@ def test_fixture():
 
 	def testfunc(pizza: int, potato: str): ...
 
-	machine = FixtureMachine()
-	q = machine.match(SignatureInspect.signature(testfunc), fix._fixtures)
+	machine = FixFinder()
+	q = machine.match(SignatureInspect.fetch(testfunc), fix._fixtures)
 	assert q == {"pizza": 62, "potato": "Hello world"}
 
 
@@ -38,9 +38,9 @@ def test_missing_fixture():
 	def potato(chips): ...
 	def testfunc(potato: str): ...
 
-	machine = FixtureMachine()
+	machine = FixFinder()
 	with pytest.raises(
 		FixtureNotDefined,
 		match="Fixture 'chips' is not defined\n",
 	):
-		machine.match(SignatureInspect.signature(testfunc), fix._fixtures)
+		machine.match(SignatureInspect.fetch(testfunc), fix._fixtures)

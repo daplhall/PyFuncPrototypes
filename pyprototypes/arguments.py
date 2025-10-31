@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Protocol
 
-from pyprototypes.BaseMatchers import (
+from pyprototypes.exceptions import UnsupportedParameters
+from pyprototypes.matcher import (
 	NameMatcher,
 	TypeMatcher,
 )
-from pyprototypes.exceptions import UnsupportedParameters
-from pyprototypes.signature import MetaSignature
+from pyprototypes.signature import SigMeta
 
 
 class States(IntEnum):
@@ -24,22 +24,22 @@ class States(IntEnum):
 
 @dataclass
 class MachineData:
-	reference: MetaSignature
-	inpt: MetaSignature
+	reference: SigMeta
+	inpt: SigMeta
 	error_msg: str
 
 
-class SignatureMatcher_t(Protocol):
+class ArgChecker_t(Protocol):
 	is_typed: bool
 
 	@abstractmethod
-	def match(self, reference: MetaSignature, signature: MetaSignature) -> bool:
+	def match(self, reference: SigMeta, signature: SigMeta) -> bool:
 		raise NotImplementedError
 
 
-class SignatureMachine:
-	def __init__(self, is_typed: bool):
-		self.is_typed = is_typed
+class ArgChecker:
+	def __init__(self, typed: bool):
+		self.is_typed = typed
 		self.states = {
 			States.MATCH_NAME: self.match_name,
 			States.NAME_ERROR: self.name_error,
@@ -49,17 +49,9 @@ class SignatureMachine:
 			States.ERROR_HANDLE: self.error_handle,
 		}
 
-	def match(
-		self,
-		reference: MetaSignature,
-		signature: MetaSignature,
-	) -> bool:
+	def match(self, ref: SigMeta, sig: SigMeta) -> bool:
 		state = States.MATCH_NAME
-		data = MachineData(
-			reference,
-			signature,
-			"",
-		)
+		data = MachineData(ref, sig, error_msg="")
 		while state != States.MATCH:
 			callback = self.states[state]
 			state = callback(data)

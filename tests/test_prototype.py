@@ -1,8 +1,7 @@
 import pytest
 
 import pyprototypes
-from pyprototypes import PrototypeCode
-from pyprototypes import exceptions
+from pyprototypes import PrototypeCode, exceptions
 
 
 def test_prototype_success(base_prototype):
