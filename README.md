@@ -14,11 +14,11 @@ Here is an example of current functionality
 from pyprototypes.prototype import Prototype
 
 
-@Prototype
+@Prototype.typed
 def proto(income: int, tax: int, penalities: int):
 	pass
 
-
+@proto.function
 def inpt_function(incm: int, tx: int, penalities: float): ...
 
 
