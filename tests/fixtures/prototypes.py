@@ -32,8 +32,36 @@ def fixture_prototype():
 
 
 @pytest.fixture
+def fixture_prototype_pos():
+	@Prototype
+	def proto_fixtures(potato, /, pizza): ...
+
+	@proto_fixtures.fixture
+	def depth():
+		return 42
+
+	@proto_fixtures.fixture
+	def pizza(depth):
+		return depth
+
+	@proto_fixtures.fixture
+	def potato():
+		return 62
+
+	return proto_fixtures
+
+
+@pytest.fixture
 def typed_prototype():
 	@Prototype.typed
 	def proto_fixtures(potato: int, pizza: float): ...
 
 	return proto_fixtures
+
+
+@pytest.fixture
+def positional_prototype():
+	@Prototype
+	def prototype(bar: str, foo: int, /): ...
+
+	return prototype

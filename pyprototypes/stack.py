@@ -1,6 +1,6 @@
 class DictStack:
 	def __init__(self, di):
-		self._iter = iter(di.signature.items())
+		self._iter = iter(di.items())
 		self._name, self._sig = next(self._iter, (None, None))
 
 	def pop(self):

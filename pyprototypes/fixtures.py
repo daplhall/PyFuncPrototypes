@@ -54,7 +54,12 @@ class FixFinder:
 	def match(
 		self, signature: SigMeta, fixtures: dict[str, SigMeta]
 	) -> dict[str, Any]:
-		data = MachineData(DictStack(signature), fixtures, {})
+		inpt = {
+			k: v
+			for k, v in signature.signature.items()
+			if k not in signature.positionals
+		}
+		data = MachineData(DictStack(inpt), fixtures, {})
 		out = Output({})
 		state = States.CHECK_FOR_ARGS
 		while state != States.EXIT:

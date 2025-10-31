@@ -48,3 +48,49 @@ def test_fixture_fixtures_success(fixture_prototype):
 
 	assert fixture_prototype.check(inpt) == pyprototypes.PrototypeCode.OK
 	assert inpt() == 104
+
+
+def test_positionals_correct(positional_prototype):
+	def inpt(bar: str, foo: int, /): ...
+
+	fixed = positional_prototype.function(inpt)
+
+	assert fixed == inpt
+
+
+def test_positionals(positional_prototype):
+	with pytest.raises(
+		exceptions.UnsupportedParameters,
+		match=(
+			r".*Positional order is wrong\n"
+			r"\t it should be 'bar, foo'\n"
+			r"\t but it is 'foo, bar'\n.*"
+		),
+	):
+
+		@positional_prototype.function
+		def inpt(foo: int, bar: str, /): ...
+
+
+def test_fixture_pos_wrong(fixture_prototype):
+	with pytest.raises(
+		exceptions.UnsupportedParameters,
+		match=(
+			r".*Positional order is wrong\n"
+			r"\t it should be '\(empty\)'\n"
+			r"\t but it is 'pizza'\n.*"
+		),
+	):
+
+		@fixture_prototype.function
+		def inpt(pizza, /, potato):
+			return pizza + potato
+
+
+def test_fixture_pos(fixture_prototype_pos):
+	@fixture_prototype_pos.function
+	def inpt(potato, /, pizza):
+		return pizza + potato
+
+	assert fixture_prototype_pos.check(inpt) == pyprototypes.PrototypeCode.OK
+	assert inpt(62) == 104
