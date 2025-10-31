@@ -14,7 +14,7 @@ from pyprototypes.signaturemachine import SignatureMachine, SignatureMatcher_t
 TYPED = True
 
 
-class ProtocolCode(IntEnum):
+class PrototypeCode(IntEnum):
 	OK = auto()
 	FAIL = auto()
 
@@ -34,7 +34,7 @@ class Prototype_T(Protocol):
 		raise NotImplementedError
 
 	@abstractmethod
-	def check(self, fnc: Callable) -> ProtocolCode:
+	def check(self, fnc: Callable) -> PrototypeCode:
 		raise NotImplementedError
 
 
@@ -92,8 +92,8 @@ class Prototype:
 		setattr(fnc, f"{self}_tag", True)
 		return fnc
 
-	def check(self, fnc: Callable) -> ProtocolCode:
+	def check(self, fnc: Callable) -> PrototypeCode:
 		if hasattr(fnc, f"{self}_tag"):
-			return ProtocolCode.OK
+			return PrototypeCode.OK
 		else:
-			return ProtocolCode.FAIL
+			return PrototypeCode.FAIL
