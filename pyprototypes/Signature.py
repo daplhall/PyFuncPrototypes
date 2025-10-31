@@ -1,7 +1,9 @@
 import inspect
+from abc import abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
 from inspect import Parameter
+from typing import Protocol
 
 
 @dataclass
@@ -11,9 +13,16 @@ class MetaSignature:
 	signature: dict[str, type]
 
 
+class Signature_T(Protocol):
+	@staticmethod
+	@abstractmethod
+	def signature(template: Callable) -> MetaSignature:
+		raise NotImplementedError
+
+
 class SignatureConstructed:
 	@staticmethod
-	def signature(template: callable) -> MetaSignature:
+	def signature(template: Callable) -> MetaSignature:
 		annotations = template.__annotations__
 		varnames = template.__code__.co_varnames
 		argcount = template.__code__.co_argcount

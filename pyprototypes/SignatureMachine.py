@@ -1,5 +1,7 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from enum import IntEnum, auto
+from typing import Protocol
 
 from pyprototypes.BaseMatchers import (
 	NameMatcher,
@@ -25,6 +27,14 @@ class MachineData:
 	reference: MetaSignature
 	inpt: MetaSignature
 	error_msg: str
+
+
+class SignatureMatcher_t(Protocol):
+	is_typed: bool
+
+	@abstractmethod
+	def match(self, reference: MetaSignature, signature: MetaSignature) -> bool:
+		raise NotImplementedError
 
 
 class SignatureMachine:

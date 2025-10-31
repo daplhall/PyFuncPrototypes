@@ -1,18 +1,44 @@
+from abc import abstractmethod
 from collections.abc import Callable
 from enum import IntEnum, auto
-from typing import Any
+from typing import Any, Protocol
 
-from pyprototypes.FixtureMachine import FixtureMachine
-from pyprototypes.interfaces.FixtureMatcherHeader import FixtureMatcher_t
-from pyprototypes.interfaces.PrototypeHeader import Prototype_T
-from pyprototypes.interfaces.SignatureMatcherHeader import SignatureMatcher_t
-from pyprototypes.Signature import MetaSignature, SignatureConstructed
-from pyprototypes.SignatureMachine import SignatureMachine
+from pyprototypes.FixtureMachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.Signature import (
+	MetaSignature,
+	Signature_T,
+	SignatureConstructed,
+)
+from pyprototypes.SignatureMachine import SignatureMachine, SignatureMatcher_t
+
+TYPED = True
 
 
 class ProtocolCode(IntEnum):
 	OK = auto()
 	FAIL = auto()
+
+
+class Prototype_T(Protocol):
+	signature_matcher: SignatureMatcher_t
+	fixture_matcher: FixtureMatcher_t
+
+	@classmethod
+	@abstractmethod
+	def typed(cls, prototype: Callable) -> "Prototype_T":
+		raise NotImplementedError
+
+	@abstractmethod
+	def fixture(self, fnc: Callable) -> Callable:
+		raise NotImplementedError
+
+	@abstractmethod
+	def function(self, fnc: Callable) -> Callable:
+		raise NotImplementedError
+
+	@abstractmethod
+	def check(self, fnc: Callable) -> ProtocolCode:
+		raise NotImplementedError
 
 
 class Prototype:
@@ -21,8 +47,8 @@ class Prototype:
 		prototype: Callable,
 		*,
 		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
-		signature_matcher: SignatureMatcher_t = SignatureMachine(False),
-		signature_pipeline=SignatureConstructed,
+		signature_matcher: SignatureMatcher_t = SignatureMachine(not TYPED),
+		signature_pipeline: Signature_T = SignatureConstructed,
 	):
 		self.signature_matcher = signature_matcher
 		self.fixture_matcher = fixture_matcher
@@ -37,7 +63,7 @@ class Prototype:
 		prototype: Callable,
 		*,
 		fixture_matcher=FixtureMachine(),
-		signature_matcher=SignatureMachine(True),
+		signature_matcher=SignatureMachine(TYPED),
 		signature_pipeline=SignatureConstructed,
 	) -> Prototype_T:
 		self = cls(
