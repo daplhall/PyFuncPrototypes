@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Any, Protocol
 
-from pyprototypes.DictStack import DictStack
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.Signature import MetaSignature
+from pyprototypes.signature import MetaSignature
+from pyprototypes.stack import DictStack
 
 
 class FixtureMatcher_t(Protocol):

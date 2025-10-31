@@ -8,7 +8,7 @@ from pyprototypes.BaseMatchers import (
 	TypeMatcher,
 )
 from pyprototypes.exceptions import UnsupportedParameters
-from pyprototypes.Signature import MetaSignature
+from pyprototypes.signature import MetaSignature
 
 
 class States(IntEnum):

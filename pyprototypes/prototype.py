@@ -3,13 +3,13 @@ from collections.abc import Callable
 from enum import IntEnum, auto
 from typing import Any, Protocol
 
-from pyprototypes.FixtureMachine import FixtureMachine, FixtureMatcher_t
-from pyprototypes.Signature import (
+from pyprototypes.fixtureMachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.signature import (
 	MetaSignature,
 	Signature_T,
 	SignatureConstructed,
 )
-from pyprototypes.SignatureMachine import SignatureMachine, SignatureMatcher_t
+from pyprototypes.signatureMachine import SignatureMachine, SignatureMatcher_t
 
 TYPED = True
 
