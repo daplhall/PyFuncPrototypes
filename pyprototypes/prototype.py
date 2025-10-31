@@ -3,13 +3,13 @@ from collections.abc import Callable
 from enum import IntEnum, auto
 from typing import Any, Protocol
 
-from pyprototypes.fixtureMachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.fixturemachine import FixtureMachine, FixtureMatcher_t
 from pyprototypes.signature import (
 	MetaSignature,
 	Signature_T,
 	SignatureConstructed,
 )
-from pyprototypes.signatureMachine import SignatureMachine, SignatureMatcher_t
+from pyprototypes.signaturemachine import SignatureMachine, SignatureMatcher_t
 
 TYPED = True
 
@@ -20,9 +20,6 @@ class ProtocolCode(IntEnum):
 
 
 class Prototype_T(Protocol):
-	signature_matcher: SignatureMatcher_t
-	fixture_matcher: FixtureMatcher_t
-
 	@classmethod
 	@abstractmethod
 	def typed(cls, prototype: Callable) -> "Prototype_T":
