@@ -5,24 +5,26 @@ from dataclasses import dataclass
 from inspect import Parameter
 from typing import Protocol
 
+from pyprototypes._typing import Signature
+
 
 @dataclass
-class MetaSignature:
+class SigMeta:
 	name: str
 	func: Callable
-	signature: dict[str, type]
+	signature: Signature
 
 
-class Signature_T(Protocol):
+class SigFetcher_t(Protocol):
 	@staticmethod
 	@abstractmethod
-	def signature(template: Callable) -> MetaSignature:
+	def fetch(template: Callable) -> SigMeta:
 		raise NotImplementedError
 
 
-class SignatureConstructed:
+class SignatureConstructed(SigFetcher_t):
 	@staticmethod
-	def signature(template: Callable) -> MetaSignature:
+	def fetch(template: Callable) -> SigMeta:
 		annotations = template.__annotations__
 		varnames = template.__code__.co_varnames
 		argcount = template.__code__.co_argcount
@@ -31,16 +33,16 @@ class SignatureConstructed:
 			arg: Parameter.empty if arg not in annotations else annotations[arg]
 			for arg in varnames[posonlycount:argcount]
 		}
-		return MetaSignature(template.__name__, template, signature)
+		return SigMeta(template.__name__, template, signature)
 
 
-class SignatureInspect:
+class SignatureInspect(SigFetcher_t):
 	"""Collects signature"""
 
 	@staticmethod
-	def signature(template: Callable) -> MetaSignature:
+	def fetch(template: Callable) -> SigMeta:
 		p = inspect.signature(template).parameters.values()
-		return MetaSignature(
+		return SigMeta(
 			template.__name__,
 			template,
 			{param.name: param.annotation for param in p},

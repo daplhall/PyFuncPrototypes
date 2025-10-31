@@ -3,15 +3,13 @@ from collections.abc import Callable
 from enum import IntEnum, auto
 from typing import Any, Protocol
 
-from pyprototypes.fixturemachine import FixtureMachine, FixtureMatcher_t
+from pyprototypes.arguments import ArgChecker, ArgChecker_t
+from pyprototypes.fixtures import FixFinder, FixFinder_t
 from pyprototypes.signature import (
-	MetaSignature,
-	Signature_T,
+	SigMeta,
+	SigFetcher_t,
 	SignatureConstructed,
 )
-from pyprototypes.signaturemachine import SignatureMachine, SignatureMatcher_t
-
-TYPED = True
 
 
 class PrototypeCode(IntEnum):
@@ -19,10 +17,10 @@ class PrototypeCode(IntEnum):
 	FAIL = auto()
 
 
-class Prototype_T(Protocol):
+class Prototype_t(Protocol):
 	@classmethod
 	@abstractmethod
-	def typed(cls, prototype: Callable) -> "Prototype_T":
+	def typed(cls, prototype: Callable) -> "Prototype_t":
 		raise NotImplementedError
 
 	@abstractmethod
@@ -38,43 +36,33 @@ class Prototype_T(Protocol):
 		raise NotImplementedError
 
 
-class Prototype:
+class Prototype(Prototype_t):
 	def __init__(
 		self,
 		prototype: Callable,
 		*,
-		fixture_matcher: FixtureMatcher_t = FixtureMachine(),
-		signature_matcher: SignatureMatcher_t = SignatureMachine(not TYPED),
-		signature_pipeline: Signature_T = SignatureConstructed,
+		fix_finder: FixFinder_t = FixFinder(),
+		arg_checker: ArgChecker_t = ArgChecker(typed=False),
+		sig_fetcher: SigFetcher_t = SignatureConstructed,
 	):
-		self.signature_matcher = signature_matcher
-		self.fixture_matcher = fixture_matcher
-		self._get_signature = signature_pipeline
+		self._fix_finder = fix_finder
+		self._arg_checker = arg_checker
+		self._sig_fetcher = sig_fetcher
 
-		self._signature = signature_pipeline.signature(prototype)
-		self._fixtures: dict[str, MetaSignature] = {}
+		self._reference = self._signature(prototype)
+		self._fixtures: dict[str, SigMeta] = {}
 
 	@classmethod
 	def typed(
 		cls,
 		prototype: Callable,
 		*,
-		fixture_matcher=FixtureMachine(),
-		signature_matcher=SignatureMachine(TYPED),
-		signature_pipeline=SignatureConstructed,
-	) -> Prototype_T:
-		self = cls(
+		arg_checker=ArgChecker(typed=True),
+	) -> Prototype_t:
+		return cls(
 			prototype,
-			fixture_matcher=fixture_matcher,
-			signature_matcher=signature_matcher,
-			signature_pipeline=signature_pipeline,
+			arg_checker=arg_checker,
 		)
-		return self
-
-	def fixture(self, fnc) -> Callable:
-		meta = self._get_signature.signature(fnc)
-		self._fixtures[meta.name] = meta
-		return fnc
 
 	def _wrap(self, fnc: Callable, defaults: dict[str, Any]) -> Callable:
 		def wrapper(**kwards):
@@ -83,11 +71,19 @@ class Prototype:
 
 		return wrapper
 
+	def _signature(self, fnc: Callable) -> SigMeta:
+		return self._sig_fetcher.fetch(fnc)
+
+	def fixture(self, fnc) -> Callable:
+		meta = self._signature(fnc)
+		self._fixtures[meta.name] = meta
+		return fnc
+
 	def function(self, fnc: Callable) -> Callable:
-		inpt_sig = self._get_signature.signature(fnc)
-		self.signature_matcher.match(self._signature, inpt_sig)
+		fnc_sig = self._signature(fnc)
+		self._arg_checker.match(self._reference, fnc_sig)
 		if self._fixtures:
-			kwargs = self.fixture_matcher.match(inpt_sig, self._fixtures)
+			kwargs = self._fix_finder.match(fnc_sig, self._fixtures)
 			fnc = self._wrap(fnc, kwargs)
 		setattr(fnc, f"{self}_tag", True)
 		return fnc

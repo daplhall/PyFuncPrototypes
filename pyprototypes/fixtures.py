@@ -4,14 +4,14 @@ from enum import IntEnum, auto
 from typing import Any, Protocol
 
 from pyprototypes.exceptions import FixtureNotDefined
-from pyprototypes.signature import MetaSignature
+from pyprototypes.signature import SigMeta
 from pyprototypes.stack import DictStack
 
 
-class FixtureMatcher_t(Protocol):
+class FixFinder_t(Protocol):
 	@abstractmethod
 	def match(
-		self, signature: MetaSignature, fixtures: dict[str, MetaSignature]
+		self, signature: SigMeta, fixtures: dict[str, SigMeta]
 	) -> dict[str, Any]:
 		raise NotImplementedError
 
@@ -19,7 +19,7 @@ class FixtureMatcher_t(Protocol):
 @dataclass
 class MachineData:
 	signature: DictStack
-	fixtures: dict[str, MetaSignature]
+	fixtures: dict[str, SigMeta]
 	recursion_retrn: dict[str, Any]
 
 
@@ -37,7 +37,7 @@ class States(IntEnum):
 	EXIT = auto()
 
 
-class FixtureMachine:
+class FixFinder:
 	"""
 	output: dict of collapsed attributes
 	"""
@@ -52,7 +52,7 @@ class FixtureMachine:
 		}
 
 	def match(
-		self, signature: MetaSignature, fixtures: dict[str, MetaSignature]
+		self, signature: SigMeta, fixtures: dict[str, SigMeta]
 	) -> dict[str, Any]:
 		data = MachineData(DictStack(signature), fixtures, {})
 		out = Output({})
@@ -62,14 +62,12 @@ class FixtureMachine:
 			state = callback(data, out)
 		return out.kwards
 
-	@staticmethod
-	def check_for_args(data: MachineData, out: Output) -> States:
+	def check_for_args(self, data: MachineData, out: Output) -> States:
 		if not data.signature:
 			return States.EXIT
 		return States.FIXTURE_CHOICE
 
-	@staticmethod
-	def fixture_choice(data: MachineData, out: Output) -> States:
+	def fixture_choice(self, data: MachineData, out: Output) -> States:
 		arg, _ = data.signature.top()
 		if arg in data.fixtures:
 			fixture = data.fixtures[arg]
@@ -80,8 +78,7 @@ class FixtureMachine:
 		else:
 			return States.NOT_FIXTURE
 
-	@staticmethod
-	def evaluate(data: MachineData, out: Output) -> States:
+	def evaluate(self, data: MachineData, out: Output) -> States:
 		arg, _ = data.signature.pop()
 		if data.fixtures[arg].signature:
 			out.kwards[arg] = data.fixtures[arg].func(**data.recursion_retrn)
@@ -89,15 +86,12 @@ class FixtureMachine:
 			out.kwards[arg] = data.fixtures[arg].func()
 		return States.CHECK_FOR_ARGS
 
-	@staticmethod
-	def recursion(data: MachineData, out: Output) -> States:
+	def recursion(self, data: MachineData, out: Output) -> States:
 		arg, _ = data.signature.top()
-		machine = FixtureMachine()
-		data.recursion_retrn = machine.match(data.fixtures[arg], data.fixtures)
+		data.recursion_retrn = self.match(data.fixtures[arg], data.fixtures)
 		return States.EVALUATE
 
-	@staticmethod
-	def not_fixture(data: MachineData, out: Output) -> States:
+	def not_fixture(self, data: MachineData, out: Output) -> States:
 		name, _ = data.signature.top()
 		raise FixtureNotDefined(f"Fixture '{name}' is not defined\n")
 		return NotImplemented

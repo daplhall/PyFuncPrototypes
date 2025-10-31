@@ -28,7 +28,7 @@ class FixtureMachine{
 	--
 	States
 }
-class SignatureMachine{
+class ArgChecker{
 	+ states : list[Enum]
 	+ match(signature: dict, inpt:dict, meta: FuncMetaData, is_typed: bool) : bool
 	--
@@ -37,10 +37,10 @@ class SignatureMachine{
 
 
 
-Prototype-->SignatureMachine
+Prototype-->ArgChecker
 Prototype-->FixtureMachine
-SignatureMachine-->NameMatcher
-SignatureMachine-->TypeMatcher
+ArgChecker-->NameMatcher
+ArgChecker-->TypeMatcher
 NameMatcher ..>Signature
 TypeMatcher ..>Signature
 FixtureMachine ..>Signature

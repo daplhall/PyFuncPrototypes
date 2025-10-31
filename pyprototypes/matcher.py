@@ -1,5 +1,7 @@
 from typing import Any
 
+from pyprototypes._typing import Signature
+
 
 class NameMatcher:
 	"""
@@ -9,24 +11,24 @@ class NameMatcher:
 	"""
 
 	@staticmethod
-	def match_str(correct: dict[str, Any], arg: str) -> list[str]:
+	def match_str(ref: dict[str, Any], arg: str) -> list[str]:
 		""" """
 		tmp = []
-		for option in correct:
+		for option in ref:
 			tmp.append((NameMatcher.lev(option, arg), option))
 		tmp.sort()
 		return [i[1] for i in tmp if min(tmp)[0] == i[0]]
 
 	@staticmethod
-	def has_oddities(correct: dict[str, Any], names: dict[str, Any]) -> bool:
-		if set(correct) ^ set(names):
+	def has_oddities(ref: dict[str, Any], names: dict[str, Any]) -> bool:
+		if set(ref) ^ set(names):
 			return True
 		else:
 			return False
 
 	@staticmethod
-	def is_odd(correct: dict[str, Any], name: str) -> bool:
-		if not (set(correct) & {name}):
+	def is_odd(ref: dict[str, Any], name: str) -> bool:
+		if not (set(ref) & {name}):
 			return True
 		else:
 			return False
@@ -55,20 +57,18 @@ class TypeMatcher:
 	@staticmethod
 	def match(
 		overlap: set[str],
-		reference: dict[Any, type],
-		signature: dict[Any, type],
+		ref: Signature,
+		sig: Signature,
 	) -> list[tuple[Any, type, type]]:
 		return [
-			(param, mytype, reference[param])
-			for param, mytype in filter(
-				lambda x: x[0] in overlap, signature.items()
-			)
-			if mytype != reference[param]
+			(param, mytype, ref[param])
+			for param, mytype in filter(lambda x: x[0] in overlap, sig.items())
+			if mytype != ref[param]
 		]
 
 	@staticmethod
-	def has_oddities(signature: dict[Any, type], inpt: dict[Any, type]):
-		if set(signature.items()) - set(inpt.items()):
+	def has_oddities(ref: Signature, sig: Signature):
+		if set(ref.items()) - set(sig.items()):
 			return True
 		else:
 			return False
