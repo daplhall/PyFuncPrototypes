@@ -44,3 +44,24 @@ def test_missing_fixture():
 		match="Fixture 'chips' is not defined\n",
 	):
 		machine.match(SignatureInspect.fetch(testfunc), fix._fixtures)
+
+
+def test_recursion_error():
+	@Prototype
+	def proto(a): ...
+
+	@proto.fixture
+	def a(b): ...
+	@proto.fixture
+	def b(a): ...
+
+	with pytest.raises(
+		FixtureNotDefined,
+		match=(
+			"Fixture 'a' is not defined\n\t Could be a recursive fixture call\n"
+		),
+	):
+
+		@proto.function
+		def foo(a):
+			print(a)

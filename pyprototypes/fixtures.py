@@ -93,10 +93,16 @@ class FixFinder:
 
 	def recursion(self, data: MachineData, out: Output) -> States:
 		arg, _ = data.arg_stack.top()
-		data.recursion_retrn = self.match(data.fixtures[arg], data.fixtures)
+		sub_fixtures = dict(
+			filter(lambda key: key[0] != arg, data.fixtures.items())
+		)
+		data.recursion_retrn = self.match(data.fixtures[arg], sub_fixtures)
 		return States.EVALUATE
 
 	def not_fixture(self, data: MachineData, out: Output) -> States:
 		name, _ = data.arg_stack.top()
-		raise FixtureNotDefined(f"Fixture '{name}' is not defined\n")
+		raise FixtureNotDefined(
+			f"Fixture '{name}' is not defined\n"
+			"\t Could be a recursive fixture call\n"
+		)
 		return NotImplemented
