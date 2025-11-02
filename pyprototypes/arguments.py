@@ -17,6 +17,9 @@ class States(IntEnum):
 	MATCH_TYPES = auto()
 	TYPE_ERROR = auto()
 	WITH_TYPES = auto()
+	WITH_POSITIONALS = auto()
+	MATCH_POSITIONALS = auto()
+	POSITIONALS_ERROR = auto()
 	ERROR_HANDLE = auto()
 	MATCH = auto()
 	ERROR = auto()
@@ -47,6 +50,9 @@ class ArgChecker:
 			States.WITH_TYPES: self.with_types,
 			States.TYPE_ERROR: self.type_error,
 			States.ERROR_HANDLE: self.error_handle,
+			States.WITH_POSITIONALS: self.with_positionals,
+			States.MATCH_POSITIONALS: self.match_positionals,
+			States.POSITIONALS_ERROR: self.positionals_error,
 		}
 
 	def match(self, ref: SigMeta, sig: SigMeta) -> bool:
@@ -70,7 +76,7 @@ class ArgChecker:
 		if self.is_typed:
 			return States.MATCH_TYPES
 		else:
-			return States.ERROR_HANDLE
+			return States.WITH_POSITIONALS
 
 	def error_handle(self, data: MachineData) -> States:
 		if data.error_msg:
@@ -84,7 +90,7 @@ class ArgChecker:
 		):
 			return States.TYPE_ERROR
 		else:
-			return States.ERROR_HANDLE
+			return States.WITH_POSITIONALS
 
 	def name_error(self, data: MachineData) -> States:
 		matches_tree = []
@@ -112,4 +118,34 @@ class ArgChecker:
 				f"\t it is '{curr_type.__name__}' "
 				f"it should be '{corr_type.__name__}'\n"
 			)
+		return States.WITH_POSITIONALS
+
+	def with_positionals(self, data: MachineData) -> States:
+		if data.reference.positionals or data.inpt.positionals:
+			return States.MATCH_POSITIONALS
+		else:
+			return States.ERROR_HANDLE
+
+	def match_positionals(self, data: MachineData) -> States:
+		if list(data.reference.positionals) != list(data.inpt.positionals):
+			return States.POSITIONALS_ERROR
+		return States.ERROR_HANDLE
+
+	def positionals_error(self, data: MachineData) -> States:
+		should_be = (
+			", ".join(data.reference.positionals)
+			if data.reference.positionals
+			else "(empty)"
+		)
+		is_now = (
+			", ".join(data.inpt.positionals)
+			if data.inpt.positionals
+			else "(empty)"
+		)
+
+		data.error_msg += (
+			"* Positional order is wrong\n"
+			f"\t it should be '{should_be}'\n"
+			f"\t but it is '{is_now}'\n"
+		)
 		return States.ERROR_HANDLE

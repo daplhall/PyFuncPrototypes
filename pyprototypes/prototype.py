@@ -6,8 +6,8 @@ from typing import Any, Protocol
 from pyprototypes.arguments import ArgChecker, ArgChecker_t
 from pyprototypes.fixtures import FixFinder, FixFinder_t
 from pyprototypes.signature import (
-	SigMeta,
 	SigFetcher_t,
+	SigMeta,
 	SignatureConstructed,
 )
 
@@ -65,9 +65,9 @@ class Prototype(Prototype_t):
 		)
 
 	def _wrap(self, fnc: Callable, defaults: dict[str, Any]) -> Callable:
-		def wrapper(**kwards):
+		def wrapper(*args, **kwards):
 			kwards.update(defaults)
-			return fnc(**kwards)
+			return fnc(*args, **kwards)
 
 		return wrapper
 

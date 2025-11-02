@@ -5,8 +5,10 @@ state ArgChecker {
 	state entry <<entrypoint>>
 	state match <<exitpoint>>
 	state do_types <<choice>>
+	state do_positionals <<choice>>
 	state type_error : record the error
 	state name_error : record the error
+	state positionals_error : record the error
 	state error : Raises Exception
 	entry --> match_name : With\nnames
 	match_name --> name_error : Error 
@@ -14,10 +16,15 @@ state ArgChecker {
 	name_error -> do_types
 
 	do_types --> match_types : With\ntypes
-	do_types -> matcher_error_handle : No\ntypes
-	match_types --> matcher_error_handle : Matching
+	do_types -> do_positionals : No\ntypes
+	match_types --> do_positionals : Matching
 	match_types --> type_error : Error
-	type_error ->  matcher_error_handle
+	type_error -> do_positionals
+	do_positionals-->positionals : Has\npositionals
+	positionals --> positionals_error : Error
+	positionals -> matcher_error_handle : Correct order
+	positionals_error -> matcher_error_handle
+	do_positionals -> matcher_error_handle : no\npositionals
 
 	matcher_error_handle --> match : No errors
 	matcher_error_handle --> error : error occoured
